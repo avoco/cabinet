@@ -5,6 +5,7 @@ from typing import Awaitable, Optional
 from filestorage import AsyncStorageHandlerBase, FileItem
 from filestorage.exceptions import FilestorageConfigError
 
+
 try:
     # The Literal type was introduced in Python 3.8
     from typing import Literal
@@ -13,8 +14,8 @@ except ImportError:
 
 try:
     import aioboto3  # type: ignore
-    from botocore.exceptions import ClientError  # type: ignore
     from aiobotocore.config import AioConfig  # type: ignore
+    from botocore.exceptions import ClientError  # type: ignore
 
     # Typing for boto3 is a pain, and typing for aioboto3 is even worse.
     # 'boto3-stubs[s3]' should help, but...
@@ -36,19 +37,19 @@ class AioBotoS3ResourceContext:
 if Literal is not None:
     # Python 3.8 +
     TypeACL = Literal[
-        'private',
-        'public-read',
-        'public-read-write',
-        'authenticated-read',
-        'aws-exec-read',
-        'bucket-owner-read',
-        'bucket-owner-full-control',
-        'log-delivery-write',
+        "private",
+        "public-read",
+        "public-read-write",
+        "authenticated-read",
+        "aws-exec-read",
+        "bucket-owner-read",
+        "bucket-owner-full-control",
+        "log-delivery-write",
     ]
 
     # https://boto3.amazonaws.com/v1/documentation/api/1.9.42/guide/s3.html
     # #changing-the-addressing-style
-    TypeAddressingStyle = Literal[None, 'auto', 'path', 'virtual']
+    TypeAddressingStyle = Literal[None, "auto", "path", "virtual"]
 else:
     # Python 3.7
     TypeACL = str  # type: ignore
@@ -61,7 +62,7 @@ class S3Handler(AsyncStorageHandlerBase):
     def __init__(
         self,
         bucket_name: str,
-        acl: TypeACL = 'public-read',
+        acl: TypeACL = "public-read",
         profile_name: Optional[str] = None,
         aws_access_key_id: Optional[str] = None,
         aws_secret_access_key: Optional[str] = None,
@@ -86,23 +87,21 @@ class S3Handler(AsyncStorageHandlerBase):
 
         # parameters passed to the AioConfig object
         self.aio_config_params = {
-            'connect_timeout': connect_timeout,
-            'read_timeout': read_timeout,
-            'connector_args': {
-                'keepalive_timeout': keepalive_timeout,
+            "connect_timeout": connect_timeout,
+            "read_timeout": read_timeout,
+            "connector_args": {
+                "keepalive_timeout": keepalive_timeout,
             },
-            'retries': {
-                'max_attempts': num_retries,
+            "retries": {
+                "max_attempts": num_retries,
             },
         }
 
         if addressing_style:
-            self.aio_config_params['s3'] = {
-                'addressing_style': addressing_style
-            }
+            self.aio_config_params["s3"] = {"addressing_style": addressing_style}
 
         if region_name:
-            self.aio_config_params['region_name'] = region_name
+            self.aio_config_params["region_name"] = region_name
 
         self.__memoized_conn_options = None
 
@@ -112,9 +111,7 @@ class S3Handler(AsyncStorageHandlerBase):
         if self.__memoized_conn_options:
             return self.__memoized_conn_options
 
-        self.__memoized_conn_options = {
-            'config': AioConfig(**self.aio_config_params)
-        }
+        self.__memoized_conn_options = {"config": AioConfig(**self.aio_config_params)}
 
         # This could be blank if the dev wants to use the local auth mechanisms
         # for AWS - either environment variables:
@@ -129,36 +126,32 @@ class S3Handler(AsyncStorageHandlerBase):
         if self.aws_access_key_id:
             self.__memoized_conn_options.update(
                 {
-                    'aws_access_key_id': str(self.aws_access_key_id),
-                    'aws_secret_access_key': str(self.aws_secret_access_key),
+                    "aws_access_key_id": str(self.aws_access_key_id),
+                    "aws_secret_access_key": str(self.aws_secret_access_key),
                 }
             )
             # Not well hidden, but might as well make it less visible
-            self.aws_secret_access_key = '(hidden)'
-            self.aws_access_key_id = '(hidden)'
+            self.aws_secret_access_key = "(hidden)"
+            self.aws_access_key_id = "(hidden)"
 
         if self.aws_session_token:
-            self.__memoized_conn_options['aws_session_token'] = str(
+            self.__memoized_conn_options["aws_session_token"] = str(
                 self.aws_session_token
             )
-            self.aws_session_token = '(hidden)'
+            self.aws_session_token = "(hidden)"
 
         if self.profile_name:
-            self.__memoized_conn_options['profile_name'] = str(
-                self.profile_name
-            )
+            self.__memoized_conn_options["profile_name"] = str(self.profile_name)
 
         # The endpoint_url isn't part of the configuration.
         if self.host_url:
-            self.__memoized_conn_options['endpoint_url'] = str(self.host_url)
+            self.__memoized_conn_options["endpoint_url"] = str(self.host_url)
         return self.__memoized_conn_options
 
     async def _validate(self) -> Optional[Awaitable]:
         """Perform any setup or validation."""
         if aioboto3 is None:
-            raise FilestorageConfigError(
-                'aioboto3 library required but not installed.'
-            )
+            raise FilestorageConfigError("aioboto3 library required but not installed.")
 
         # Call this in order to populate the options
         self.__conn_options
@@ -167,8 +160,8 @@ class S3Handler(AsyncStorageHandlerBase):
     async def test_credentials(self):
         """Perform a read, check, delete set of operations on a dummy file."""
         item = self.get_item(
-            filename=f'__delete_me__{uuid.uuid4()}.txt',
-            data=BytesIO(b'Credential test run from the filestorage library.'),
+            filename=f"__delete_me__{uuid.uuid4()}.txt",
+            data=BytesIO(b"Credential test run from the filestorage library."),
         )
         async with self.resource as s3:
             filename = await self._async_save(item, s3)
@@ -177,7 +170,7 @@ class S3Handler(AsyncStorageHandlerBase):
             await self._async_delete(item, s3)
 
     @property
-    def resource(self) -> 'AioBotoS3ResourceContext':
+    def resource(self) -> "AioBotoS3ResourceContext":
         """Provide a context manager for accessing the S3 resources.
 
         async with handler.resource as s3:
@@ -188,7 +181,7 @@ class S3Handler(AsyncStorageHandlerBase):
         async with handler.resource as s3:
             client = s3.meta.client
         """
-        return aioboto3.resource('s3', **self.__conn_options)
+        return aioboto3.resource("s3", **self.__conn_options)
 
     async def get_bucket(self, resource):
         return await resource.Bucket(self.bucket_name)  # type: ignore
@@ -201,11 +194,9 @@ class S3Handler(AsyncStorageHandlerBase):
                 return await self._async_exists(item, s3)
 
         try:
-            await s3.meta.client.head_object(
-                Bucket=self.bucket_name, Key=item.url_path
-            )
+            await s3.meta.client.head_object(Bucket=self.bucket_name, Key=item.url_path)
         except ClientError as err:
-            if int(err.response.get('Error', {}).get('Code')) == 404:
+            if int(err.response.get("Error", {}).get("Code")) == 404:
                 return False
             raise
         return True
@@ -214,7 +205,7 @@ class S3Handler(AsyncStorageHandlerBase):
         """Save the provided file to the given filename in the storage
         container. Returns the name of the file saved.
         """
-        extra = {'ACL': self.acl, 'ContentType': item.content_type}
+        extra = {"ACL": self.acl, "ContentType": item.content_type}
 
         if s3 is None:
             # If not called with the s3 context, do it again.

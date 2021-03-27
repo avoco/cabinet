@@ -1,26 +1,28 @@
 import inspect
 from abc import ABC, abstractmethod
-from asyncio import gather, isfuture, iscoroutine
+from asyncio import gather, iscoroutine, isfuture
 from io import BytesIO
 from typing import (
+    TYPE_CHECKING,
     Awaitable,
     BinaryIO,
-    cast,
     List,
     Optional,
     Tuple,
     Union,
-    TYPE_CHECKING,
+    cast,
 )
 from urllib.parse import urljoin
 
 from . import utils
-from .file_item import FileItem
 from .exceptions import FilestorageConfigError
+from .file_item import FileItem
 from .filter_base import FilterBase
+
 
 if TYPE_CHECKING:
     import cgi
+
     from .storage_container import StorageContainer
 
 
@@ -49,7 +51,7 @@ class StorageHandlerBase(ABC):
 
     @property
     def base_url(self) -> str:
-        return self._base_url or ''
+        return self._base_url or ""
 
     @property
     def path(self) -> Tuple[str, ...]:
@@ -74,7 +76,7 @@ class StorageHandlerBase(ABC):
             if inspect.isclass(filter_):
                 filter_name: str = filter_.__name__  # type: ignore
                 raise FilestorageConfigError(
-                    f'Filter {filter_name} is a class, not an instance. '
+                    f"Filter {filter_name} is a class, not an instance. "
                     f'Did you mean to use "filters=[{filter_name}()]" instead?'
                 )
             result = filter_.validate()
@@ -115,15 +117,15 @@ class StorageHandlerBase(ABC):
         """Perform a quick pass to sanitize the filename"""
         # Strip out any . prefix - which should eliminate attempts to write
         # special Unix files
-        filename = filename.lstrip('.')
+        filename = filename.lstrip(".")
 
         # Strip out any non-alpha, . or _ characters.
         def clean_char(c: str) -> str:
-            if c.isalnum() or c in ('.', '_'):
+            if c.isalnum() or c in (".", "_"):
                 return c
-            return '_'
+            return "_"
 
-        filename = ''.join(clean_char(c) for c in filename)
+        filename = "".join(clean_char(c) for c in filename)
 
         return filename
 
@@ -174,14 +176,12 @@ class StorageHandlerBase(ABC):
 
         return self._save(item)
 
-    def save_field(self, field: 'cgi.FieldStorage') -> str:
+    def save_field(self, field: "cgi.FieldStorage") -> str:
         """Save a file stored in a CGI field."""
         if not field.file:
-            raise RuntimeError('No file data in the field')
+            raise RuntimeError("No file data in the field")
 
-        return self.save_file(
-            field.filename or 'file', cast(BinaryIO, field.file)
-        )
+        return self.save_file(field.filename or "file", cast(BinaryIO, field.file))
 
     def save_data(self, filename: str, data: bytes) -> str:
         """Save a file from the byte data provided."""
@@ -206,8 +206,8 @@ class AsyncStorageHandlerBase(StorageHandlerBase, ABC):
         for filter_ in self.filters:
             if not filter_.async_ok:
                 raise FilestorageConfigError(
-                    f'Filter {filter_} cannot be used in '
-                    f'asynchronous storage handler {self}'
+                    f"Filter {filter_} cannot be used in "
+                    f"asynchronous storage handler {self}"
                 )
         return super().validate()
 
@@ -218,7 +218,7 @@ class AsyncStorageHandlerBase(StorageHandlerBase, ABC):
 
     def _exists(self, item: FileItem) -> bool:
         if not self.allow_sync_methods:
-            raise RuntimeError('Sync exists method not allowed')
+            raise RuntimeError("Sync exists method not allowed")
         return utils.async_to_sync(self._async_exists)(item)
 
     @abstractmethod
@@ -235,7 +235,7 @@ class AsyncStorageHandlerBase(StorageHandlerBase, ABC):
 
     def _delete(self, item: FileItem) -> None:
         if not self.allow_sync_methods:
-            raise RuntimeError('Sync delete method not allowed')
+            raise RuntimeError("Sync delete method not allowed")
         utils.async_to_sync(self._async_delete)(item)
 
     @abstractmethod
@@ -247,7 +247,7 @@ class AsyncStorageHandlerBase(StorageHandlerBase, ABC):
 
     def _save(self, item: FileItem) -> str:
         if not self.allow_sync_methods:
-            raise RuntimeError('Sync save method not allowed')
+            raise RuntimeError("Sync save method not allowed")
         return utils.async_to_sync(self._async_save)(item)
 
     @abstractmethod
@@ -273,13 +273,13 @@ class AsyncStorageHandlerBase(StorageHandlerBase, ABC):
             filename = new_filename
         return filename
 
-    async def async_save_field(self, field: 'cgi.FieldStorage') -> str:
+    async def async_save_field(self, field: "cgi.FieldStorage") -> str:
         """Save a file stored in a CGI field."""
         if not field.file:
-            raise RuntimeError('No file data in the field')
+            raise RuntimeError("No file data in the field")
 
         return await self.async_save_file(
-            field.filename or 'file', cast(BinaryIO, field.file)
+            field.filename or "file", cast(BinaryIO, field.file)
         )
 
     async def async_save_data(self, filename: str, data: bytes) -> str:
@@ -307,11 +307,11 @@ class Folder(AsyncStorageHandlerBase):
     def base_url(self) -> str:
         return self._store.sync_handler.base_url
 
-    def __init__(self, store: 'StorageContainer', path: Tuple[str, ...]):
+    def __init__(self, store: "StorageContainer", path: Tuple[str, ...]):
         super().__init__(path=path)
         self._store = store
 
-    def subfolder(self, folder_name: str) -> 'Folder':
+    def subfolder(self, folder_name: str) -> "Folder":
         """Get a subfolder for this folder"""
         return Folder(store=self._store, path=self._path + (folder_name,))
 
@@ -322,7 +322,7 @@ class Folder(AsyncStorageHandlerBase):
             and (self._path == other._path)
         )
 
-    def __truediv__(self, other: str) -> 'Folder':
+    def __truediv__(self, other: str) -> "Folder":
         """Get a new subfolder when using the divide operator.
 
         Allows building a path with path-looking code:

@@ -1,6 +1,6 @@
-from typing import Dict, Tuple, Optional
+from typing import Dict, Optional, Tuple
 
-from filestorage import FileItem, StorageHandlerBase, AsyncStorageHandlerBase
+from filestorage import AsyncStorageHandlerBase, FileItem, StorageHandlerBase
 
 
 class DummyHandler(StorageHandlerBase):
@@ -12,7 +12,7 @@ class DummyHandler(StorageHandlerBase):
         # the bytes that were stored to the file.
         self.files: Dict[str, bytes] = {}
         self.last_save: Optional[FileItem] = None
-        self.last_save_contents: bytes = b''
+        self.last_save_contents: bytes = b""
         self.last_delete: Optional[FileItem] = None
         self.validated = False
 
