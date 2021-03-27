@@ -1,0 +1,96 @@
+[tool.poetry]
+name = "filestorage"
+version = "0.0.1"
+description = "Save uploaded files in configurable stores"
+authors = [
+    'Ian Epperson <ian@epperson.com>',
+    "David Styers <david@styers.dev>"
+]
+license = "MIT"
+
+readme = "README.md"
+
+homepage = ""
+repository = "https://github.com/avoco/filestorage"
+documentation = ""
+
+keywords = ["file-system", "async", "starlette", "fastapi"]
+
+classifiers = [
+    'Programming Language :: Python :: 3',
+    'License :: OSI Approved :: MIT License',
+    'Operating System :: OS Independent',
+]
+packages = [
+    {include = "filestorage"},
+    {include = "filestorage/py.typed"},
+    {include = "filestorage/filters"},
+    {include = "filestorage/filters/py.typed"},
+    {include = "filestorage/handlers"},
+    {include = "filestorage/handlers/py.typed"},
+]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+asgiref = "^3.3.1"
+aioboto3 = {version = "^8.3.0", optional = true}
+aiofiles = {version = "^0.6.0", optional = true}
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.2"
+pytest-asyncio = "^0.14.0"
+pytest-mock = "^3.5.1"
+mock = "^4.0.3"
+black = {version = "^20.8b1", allow-prereleases = true}
+isort = "^5.8.0"
+flake8 = "^3.9.0"
+flake8-isort = "^4.0.0"
+flake8-black = "^0.2.1"
+flake8-eradicate = "^1.0.0"
+aioboto3 = "^8.3.0"
+aiofiles = "^0.6.0"
+pre-commit = "^2.11.1"
+pytest-emoji = "^0.2.0"
+
+[tool.poetry.extras]
+aiofile = ["aiofiles"]
+s3 = ["aioboto3"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+src_paths = ["filestorage", "tests"]
+profile = "black"
+indent = 4
+combine_star = true
+combine_as_imports = true
+lines_after_imports = 2
+known_pytest = ["pytest"]
+known_first_party = ["filestorage"]
+sections = ["FUTURE", "STDLIB", "PYTEST", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+
+[tool.black]
+line-length = 88
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | tests/.*/setup.py
+)/
+'''
+
+[tool.pytest.ini_options]
+addopts = "--emoji"
+testpaths = ["tests/"]

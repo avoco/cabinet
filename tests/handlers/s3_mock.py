@@ -1,5 +1,6 @@
 import botocore  # type: ignore
 
+
 # Mock the AWS async resources that we'll be using
 # AsyncMock is available in Python 3.8, but to keep things working with older
 # versions, these explicit objects will provide the necessary mocking.
@@ -61,9 +62,9 @@ class MockS3AsyncClient:
         self._head_object_kwargs = kwargs
         if self._make_object_missing:
             raise botocore.exceptions.ClientError(
-                operation_name='head_object',
+                operation_name="head_object",
                 error_response={
-                    'Error': {'Code': '404'},
+                    "Error": {"Code": "404"},
                 },
             )
 

@@ -354,7 +354,7 @@ Properties:
 
 Methods:
  * `copy(**kwargs)` - Create a copy of this object, overriding any specific parameter. Example: `item.copy(filename='new_name.txt')`. This is very useful in a Filter that changes the filename or other properties.
- 
+
 Context Manager:
 
 The FileItem can be used as a context manager, where it will modify the read/seek methods of the underlying object to fit the requested stream as necessary - either sync or async.
