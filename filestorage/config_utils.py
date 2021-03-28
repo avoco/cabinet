@@ -186,7 +186,7 @@ def unquote(value: str) -> str:
     return value
 
 
-def decode_kwarg(value) -> Any:
+def decode_kwarg(value: Any) -> Any:
     """Tries to determine what the kwarg should be. Decode lists, dicts, sets
     and integers.
     """

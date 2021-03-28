@@ -1,7 +1,7 @@
 # filestorage
-A Python library to make storing files simple and easy.
+A Python library to make storing files intuitive.
 
-> :warning: Although there are extensive tests within this project for Python 3.6, 3.7, 3.8 and 3.9, it is a young project and there may be bugs and security holes. Be sure and test thoroughly prior to use in a production environment.
+> :warning: Although there are extensive tests within this project for Python 3.6, 3.7, 3.8 and 3.9, it is a young project and there may be bugs. Be sure and test thoroughly prior to use in a production environment.
 
 It is primarily intended to deal with file uploads to a static files directory or an object service like
 [AWS S3](https://aws.amazon.com/s3/?nc2=h_ql_prod_st_s3) or [Linode](https://www.linode.com/products/object-storage/).
@@ -12,7 +12,7 @@ like [Django](https://www.djangoproject.com/), [Flask](https://flask.palletsproj
 
 Supports multiple storage services simultaneously or even the same service with multiple configurations.
 
-Upload filters are easy to create and a few [are included](#filters) by default.
+Upload filters are designed to be intuitive to create and a few [are included](#filters) by default.
 
 Table of Contents
 =================
@@ -78,7 +78,7 @@ from filestorage import store
 store.finalized  # == False
 ```
 
-> If you are uncomfortable by the existance of a global store, fear not! You can make a new instance of the store using the [StorageContainer](#storagecontainer) class. `my_store = StorageContainer()`, the use that in your program.
+> If you are uncomfortable by the existence of a global store, don't be! You can make a new instance of the store using the [StorageContainer](#storagecontainer) class. `my_store = StorageContainer()`, the use that in your program.
 
 The store can hold multiple configurations that are accessed through its indices:
 
@@ -114,7 +114,7 @@ store.handler = DummyHandler()
 store['portraits'] = DummyHandler()
 ```
 
-The DummyHandler doesn't need any other configuration and just stores any saved files in memory.
+The DummyHandler doesn't need any other configuration and stores any saved files in memory.
 
 In your app, you would would normally perform this configuration after all files have been imported but before the app starts - for instance in an initialization step where the app configuration is read. Different frameworks (Pyramid/Django/Starlette) will have different mechanisms for this.
 
@@ -186,7 +186,7 @@ store['portraits'].handler = store / 'portraits'
 
 Filters allow mutating a file to be stored to a Handler. They are called in the order defined and a few filters are provided by this library.
 
-For instance, it's often best not to simply store filenames provided by random Internet uploads. Although this library does scrub the filename, it's not as fool-proof as simply ignoring the provided filename and using a random string with a consistent length. The [RandomizeFilename](#randomizefilename) filter does just that.
+For instance, it's often best not to store filenames provided by random Internet uploads. Although this library does scrub the filename, it's not as fool-proof as ignoring the provided filename and using a random string with a consistent length. The [RandomizeFilename](#randomizefilename) filter does that.
 
 ```python
 from filestorage.filters import RandomizeFilename
@@ -510,7 +510,7 @@ Parameters:
 
 #### ValidateExtension
 
-Reject any filename that does not have one of the indicated extensions. Raises a [`FileExtensionNotAllowed`](#exceptions) for a disallowed extension.
+Don't accept any filename that does not have one of the indicated extensions. Raises a [`FileExtensionNotAllowed`](#exceptions) for a disallowed extension.
 
 Async OK.
 
@@ -535,7 +535,7 @@ def test_store():
     dummy_handler.assert_exists('name.txt', ('folder', 'subfolder'))
 ```
 
-If you need to write several tests and want to check the result, it's probably best to create a couple of simple fixtures and allow [pytest](https://docs.pytest.org/en/stable/fixture.html) to inject them as needed.
+If you need to write several tests and want to check the result, it's probably best to create a couple of fixtures and allow [pytest](https://docs.pytest.org/en/stable/fixture.html) to inject them as needed.
 
 Within `tests/conftest.py`:
 ```python

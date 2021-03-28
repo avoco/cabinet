@@ -21,7 +21,7 @@ class LocalFileHandler(StorageHandlerBase):
     async_ok = False
     chunk_size = 1024 * 8
 
-    def __init__(self, base_path, auto_make_dir=False, **kwargs):
+    def __init__(self, base_path, auto_make_dir=False, **kwargs) -> None:
         super().__init__(**kwargs)
         self.base_path = base_path
         self.auto_make_dir = auto_make_dir
@@ -31,7 +31,7 @@ class LocalFileHandler(StorageHandlerBase):
         """Returns the local path to the file."""
         return os.path.join(self.base_path, item.fs_path)
 
-    def make_dir(self, item: Optional[FileItem] = None):
+    def make_dir(self, item: Optional[FileItem] = None) -> None:
         """Ensures the provided path exists."""
         if not item:
             item = self.get_item("")

@@ -11,12 +11,20 @@ store.handler.filters[1].extensions = ['jpg', 'png']
 store['test'].handler = DummyHandler
 store['test'].handler.base_url = http://foo.bar
 """
+try:
+    from pyramid.config import Configurator  # type: ignore
+    from pyramid.request import Request  # type: ignore
+except ImportError:
+    raise ImportError(
+        "In order to use filestorage as a pyramid plugin,"
+        "you must install pyramid first!"
+    )
 
 from filestorage import StorageContainer, store
 from filestorage.config_utils import setup_from_settings
 
 
-def includeme(config):
+def includeme(config: Configurator) -> None:
     store_prefix = "store"
     # Make a copy of the settings so that each valid key can be consumed and
     # verified, and invalid ones can be complained about.
@@ -39,7 +47,7 @@ def includeme(config):
         # If not using the global store, make a new store for get_store to use.
         pyramid_store = StorageContainer()
 
-    def get_store(request):
+    def get_store(request: Request) -> StorageContainer:
         return pyramid_store
 
     # Add the store object to every request.
