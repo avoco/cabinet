@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import botocore  # type: ignore
 
 
@@ -67,6 +69,8 @@ class MockS3AsyncClient:
                     "Error": {"Code": "404"},
                 },
             )
+        # Perhaps there is a better way to mock this
+        return {"ContentLength": "8", "LastModified": datetime(2015, 1, 1)}
 
 
 class MockAsyncContext:
