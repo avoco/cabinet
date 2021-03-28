@@ -15,7 +15,7 @@ class NewFilter(FilterBase):
     # then this must be set to False.
     async_ok = False
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Determine any parameters that are necessary for this filter to work.
         # The base class does not have an __init__, so no need to call super().
         pass

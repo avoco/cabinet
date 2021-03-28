@@ -40,8 +40,7 @@ class StorageHandlerBase(ABC):
         self._base_url = base_url
         self._filters = filters or []
 
-        # It's a bit too easy to monkey up creating a tuple. Allow the library
-        # users to provide a path in a couple of different ways.
+        # Allow the library users to provide a path in a couple of different ways.
         self._path: Tuple[str, ...]
         if isinstance(path, str):
             self._path = (path,)
