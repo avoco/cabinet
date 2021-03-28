@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "filestorage"
-version = "0.0.1"
+version = "0.0.6"
 description = "Save uploaded files in configurable stores"
 authors = [
     'Ian Epperson <ian@epperson.com>',
