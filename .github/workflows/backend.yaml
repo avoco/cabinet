@@ -1,4 +1,4 @@
-name: Backend tests
+name: Backend
 
 on:
   push:
@@ -55,4 +55,4 @@ jobs:
       - run: pip install poetry
       - name: Install dependencies
         run: poetry install
-      - run: poetry run mypy --config-file mypy.ini .
+      - run: poetry run mypy
