@@ -1,8 +1,5 @@
 jobs:
   build:
-    filters:
-      tags:
-        only: /.*/
     executor: python/default
     steps:
       - add_ssh_keys
@@ -24,4 +21,7 @@ version: 2.1
 workflows:
   main:
     jobs:
-      - build
+      - build:
+          filters:
+            tags:
+              only: /.*/
