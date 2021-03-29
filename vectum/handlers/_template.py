@@ -3,8 +3,8 @@ from typing import Awaitable, Optional
 
 # If creating an awaitable handler, use AsyncStorageHandlerBase instead and
 # populate every _async_* method.
-from filestorage import FileItem, StorageHandlerBase
-from filestorage.exceptions import FilestorageConfigError
+from vectum import FileItem, StorageHandlerBase
+from vectum.exceptions import vectumConfigError
 
 
 class NewStorageHandler(StorageHandlerBase):
@@ -23,9 +23,9 @@ class NewStorageHandler(StorageHandlerBase):
         # This should be called prior to other calls, but it might not!
         # If there's a problem with the validation, raise an error.
         # If the problem is with the configuration:
-        #     raise FilestorageConfigError('describe the problem')
+        #     raise vectumConfigError('describe the problem')
         # Can be an async method if necessary and will be awaited on properly.
-        raise FilestorageConfigError("This is a template, not a real handler!")
+        raise vectumConfigError("This is a template, not a real handler!")
 
     # async def _async_exists(self, item: FileItem) -> bool:
     def _exists(self, item: FileItem) -> bool:

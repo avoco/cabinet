@@ -4,9 +4,9 @@ import pytest
 
 from mock import Mock
 
-from filestorage import StorageContainer, store as default_store
-from filestorage.exceptions import FilestorageConfigError
-from filestorage.handlers import AsyncDummyHandler, DummyHandler
+from vectum import StorageContainer, store as default_store
+from vectum.exceptions import vectumConfigError
+from vectum.handlers import AsyncDummyHandler, DummyHandler
 
 
 @pytest.fixture
@@ -84,7 +84,7 @@ async def test_async_validate_error(store, async_handler):
     """Some frameworks validate in an async thread. Ensure that works"""
     store.handler = async_handler
 
-    with pytest.raises(FilestorageConfigError) as err:
+    with pytest.raises(vectumConfigError) as err:
         await store.finalize_config()
 
     assert (
@@ -106,7 +106,7 @@ def test_cant_get_children_after_final(store, handler):
     store.handler = handler
     store.finalize_config()
 
-    with pytest.raises(FilestorageConfigError) as err:
+    with pytest.raises(vectumConfigError) as err:
         store["a"]
 
     assert str(err.value) == "Getting store['a']: store already finalized!"
@@ -126,7 +126,7 @@ def test_path_by_div(store, handler):
 
 
 def test_bad_handler_setting(store):
-    with pytest.raises(FilestorageConfigError) as err:
+    with pytest.raises(vectumConfigError) as err:
         # Handler must be a handler!
         store.handler = "foo"
 
@@ -134,7 +134,7 @@ def test_bad_handler_setting(store):
 
 
 def test_finalized_without_setting(store):
-    with pytest.raises(FilestorageConfigError) as err:
+    with pytest.raises(vectumConfigError) as err:
         store.finalize_config()
 
     assert str(err.value) == "No handler provided for store"
@@ -144,7 +144,7 @@ def test_finalized_without_setting_substore(store, handler):
     store.handler = handler
     store_b = store["b"]  # noqa
 
-    with pytest.raises(FilestorageConfigError) as err:
+    with pytest.raises(vectumConfigError) as err:
         store.finalize_config()
 
     assert str(err.value) == "No handler provided for store['b']"

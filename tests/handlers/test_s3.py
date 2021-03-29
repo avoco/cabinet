@@ -2,7 +2,7 @@ from io import BytesIO
 
 import pytest
 
-from filestorage.handlers import S3Handler
+from vectum.handlers import S3Handler
 
 from . import s3_mock
 
@@ -12,7 +12,7 @@ def mock_s3_resource(mocker):
     resource = s3_mock.MockS3AsyncResource()
     contextualized = s3_mock.MockAsyncContext(resource)
     mocker.patch(
-        "filestorage.handlers.S3Handler.resource",
+        "vectum.handlers.S3Handler.resource",
         new=contextualized,
     )
     return resource
@@ -23,7 +23,7 @@ def mock_s3_resource_failure(mocker):
     resource = s3_mock.MockS3AsyncResource(make_object_missing=True)
     contextualized = s3_mock.MockAsyncContext(resource)
     mocker.patch(
-        "filestorage.handlers.S3Handler.resource",
+        "vectum.handlers.S3Handler.resource",
         new=contextualized,
     )
     return resource

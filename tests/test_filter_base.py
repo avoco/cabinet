@@ -1,7 +1,7 @@
 import pytest
 
-from filestorage import AsyncFilterBase, FileItem, FilterBase
-from filestorage.handlers import AsyncDummyHandler, DummyHandler
+from vectum import AsyncFilterBase, FileItem, FilterBase
+from vectum.handlers import AsyncDummyHandler, DummyHandler
 
 
 class SimpleFilter(FilterBase):

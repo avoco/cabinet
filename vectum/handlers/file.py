@@ -11,8 +11,8 @@ except ImportError:
     # The validate method will ensure this isn't None prior to use
     aiofiles = None  # type: ignore
 
-from filestorage import AsyncStorageHandlerBase, FileItem, StorageHandlerBase, utils
-from filestorage.exceptions import FilestorageConfigError
+from vectum import AsyncStorageHandlerBase, FileItem, StorageHandlerBase, utils
+from vectum.exceptions import vectumConfigError
 
 
 class LocalFileHandler(StorageHandlerBase):
@@ -53,7 +53,7 @@ class LocalFileHandler(StorageHandlerBase):
             item = self.get_item("")
             if not self._exists(item):
                 local_path = self.local_path(item)
-                raise FilestorageConfigError(
+                raise vectumConfigError(
                     f"Configured directory {local_path!r} does not exist"
                 )
 
@@ -144,7 +144,7 @@ class AsyncLocalFileHandler(LocalFileHandler, AsyncStorageHandlerBase):
 
     def validate(self) -> None:
         if aiofiles is None:
-            raise FilestorageConfigError(
+            raise vectumConfigError(
                 "The aiofiles library is required for using "
                 f"{self.__class__.__name__}"
             )

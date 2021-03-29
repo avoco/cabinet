@@ -1,8 +1,8 @@
 import os
 from typing import List
 
-from filestorage import FileItem, FilterBase
-from filestorage.exceptions import FileExtensionNotAllowed
+from vectum import FileItem, FilterBase
+from vectum.exceptions import FileExtensionNotAllowed
 
 
 class ValidateExtension(FilterBase):

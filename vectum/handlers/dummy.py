@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Dict, Optional, Tuple
 
-from filestorage import AsyncStorageHandlerBase, FileItem, StorageHandlerBase
+from vectum import AsyncStorageHandlerBase, FileItem, StorageHandlerBase
 
 
 class DummyHandler(StorageHandlerBase):

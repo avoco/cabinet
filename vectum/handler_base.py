@@ -16,7 +16,7 @@ from typing import (
 from urllib.parse import urljoin
 
 from . import utils
-from .exceptions import FilestorageConfigError
+from .exceptions import vectumConfigError
 from .file_item import FileItem
 from .filter_base import FilterBase
 
@@ -68,14 +68,14 @@ class StorageHandlerBase(ABC):
         """Validate that the configuration is set up properly and the necessary
         libraries are available.
 
-        If any configuration is amiss, raises a FilestorageConfigError.
+        If any configuration is amiss, raises a vectumConfigError.
         """
         coroutines: List[Awaitable] = []
         # Verify that any provided filters are valid.
         for filter_ in self._filters:
             if inspect.isclass(filter_):
                 filter_name: str = filter_.__name__  # type: ignore
-                raise FilestorageConfigError(
+                raise vectumConfigError(
                     f"Filter {filter_name} is a class, not an instance. "
                     f'Did you mean to use "filters=[{filter_name}()]" instead?'
                 )
@@ -256,12 +256,12 @@ class AsyncStorageHandlerBase(StorageHandlerBase, ABC):
         """Validate that the configuration is set up properly and the necessary
         libraries are available.
 
-        If anything is amiss, raises a FilestorageConfigError.
+        If anything is amiss, raises a vectumConfigError.
         """
         # Verify that any provided filters are ok to use.
         for filter_ in self.filters:
             if not filter_.async_ok:
-                raise FilestorageConfigError(
+                raise vectumConfigError(
                     f"Filter {filter_} cannot be used in "
                     f"asynchronous storage handler {self}"
                 )

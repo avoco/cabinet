@@ -6,9 +6,9 @@ import pytest
 
 from mock import Mock
 
-from filestorage import FileItem, FilterBase, StorageContainer
-from filestorage.exceptions import FilestorageConfigError
-from filestorage.handlers import AsyncDummyHandler, DummyHandler
+from vectum import FileItem, FilterBase, StorageContainer
+from vectum.exceptions import vectumConfigError
+from vectum.handlers import AsyncDummyHandler, DummyHandler
 
 
 @pytest.fixture
@@ -73,7 +73,7 @@ async def test_validate_bad_async_filter():
     filter1.async_ok = False
     handler = AsyncDummyHandler(filters=[filter1])
 
-    with pytest.raises(FilestorageConfigError) as err:
+    with pytest.raises(vectumConfigError) as err:
         await handler.validate()
 
     assert "cannot be used" in str(err.value)
@@ -245,7 +245,7 @@ def test_filter_class_not_instance():
     solution.
     """
     handler = DummyHandler(filters=[MockFilter])
-    with pytest.raises(FilestorageConfigError) as err:
+    with pytest.raises(vectumConfigError) as err:
         handler.validate()
 
     assert str(err.value) == (

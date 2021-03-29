@@ -4,9 +4,9 @@ from tempfile import TemporaryDirectory
 
 import pytest
 
-from filestorage import StorageContainer
-from filestorage.exceptions import FilestorageConfigError
-from filestorage.handlers import AsyncLocalFileHandler, LocalFileHandler
+from vectum import StorageContainer
+from vectum.exceptions import vectumConfigError
+from vectum.handlers import AsyncLocalFileHandler, LocalFileHandler
 
 
 @pytest.fixture
@@ -49,7 +49,7 @@ def test_error_when_no_directory(directory):
     directory = os.path.join(directory, "folder", "subfolder")
     handler = LocalFileHandler(base_path=directory)
 
-    with pytest.raises(FilestorageConfigError) as err:
+    with pytest.raises(vectumConfigError) as err:
         handler.validate()
 
     assert directory.rstrip("/").rstrip("\\") in str(err.value)
@@ -168,7 +168,7 @@ def test_async_error_when_no_directory(directory):
     directory = os.path.join(directory, "folder", "subfolder")
     handler = AsyncLocalFileHandler(base_path=directory)
 
-    with pytest.raises(FilestorageConfigError) as err:
+    with pytest.raises(vectumConfigError) as err:
         handler.validate()
 
     assert directory.rstrip("/").rstrip("\\") in str(err.value)

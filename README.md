@@ -1,4 +1,4 @@
-# filestorage
+# vectum
 A Python library to make storing files intuitive.
 
 > :warning: Although there are extensive tests within this project for Python 3.6, 3.7, 3.8 and 3.9, it is a young project and there may be bugs. Be sure and test thoroughly prior to use in a production environment.
@@ -18,7 +18,7 @@ Table of Contents
 =================
 
 <!--ts-->
-   * [filestorage](#filestorage)
+   * [vectum](#vectum)
    * [Table of Contents](#table-of-contents)
       * [Introduction](#introduction)
          * [Installation](#installation)
@@ -53,16 +53,16 @@ Table of Contents
 
 ### Installation
 
-The library is available through the [Python Package Index](https://pypi.org/project/filestorage/) and can be installed with pip.
+The library is available through the [Python Package Index](https://pypi.org/project/vectum/) and can be installed with pip.
 
 ```bash
-pip install filestorage
+pip install vectum
 ```
 
 Different handlers have additional library requirements that can be optionally installed. For instance, the [async local file handler](#asynclocalfilehandler) requirements can be installed using:
 
 ```base
-pip install "filestorage[aio_file]"
+pip install "vectum[aio_file]"
 ```
 
 The extras are:
@@ -74,7 +74,7 @@ The extras are:
 Interaction with the library is primarily accomplished through a global [`store`](#storagecontainer) object. Any Python file can access this global object by importing it.
 
 ```python
-from filestorage import store
+from vectum import store
 store.finalized  # == False
 ```
 
@@ -98,7 +98,7 @@ Trying to use the store to save files prior to providing it a handler will resul
 ```python
 store.save_data(filename='file.txt', data=b'spamity spam')
 
-# FilestorageConfigError: No handler provided for store
+# vectumConfigError: No handler provided for store
 ```
 
 So it's time to give it a [handler](#handler).
@@ -139,7 +139,7 @@ When you do so, all handlers and filters will validate their configuration and i
 store.finalize_config()
 
 store.handler = DummyHandler()
-# FilestorageConfigError: Setting store.handler: store already finalized!
+# vectumConfigError: Setting store.handler: store already finalized!
 ```
 
 If using an ASGI server, you may need to instead use an [async startup task](https://www.starlette.io/events/) that contains:
@@ -189,7 +189,7 @@ Filters allow mutating a file to be stored to a Handler. They are called in the 
 For instance, it's often best not to store filenames provided by random Internet uploads. Although this library does scrub the filename, it's not as fool-proof as ignoring the provided filename and using a random string with a consistent length. The [RandomizeFilename](#randomizefilename) filter does that.
 
 ```python
-from filestorage.filters import RandomizeFilename
+from vectum.filters import RandomizeFilename
 store.handler = DummyHandler(filters=[RandomizeFilename()])
 
 store.save_data(filename='ignored name.txt', data=b'contents')
@@ -204,28 +204,28 @@ For more on filters, see the [Filter](#filter) class definition.
 
 This library can behave as a Pyramid plugin. When doing so, it will read from the Pyramid configuration and set up the handler(s) defined there. The `store` will also be available on the `request` object as `request.store`.
 
-To set it up, include `filestorage.pyramid_config` in your configuration using the [Pyramid Configurator's include](.https://docs.pylonsproject.org/projects/pyramid/en/latest/api/config.html#pyramid.config.Configurator.include) method.
+To set it up, include `vectum.pyramid_config` in your configuration using the [Pyramid Configurator's include](.https://docs.pylonsproject.org/projects/pyramid/en/latest/api/config.html#pyramid.config.Configurator.include) method.
 
 ```python
 from pyramid.config import Configurator
 
 def main(global_config, **settings):
     config = Configurator()
-    config.include('filestorage.pyramid_config'). # <---
+    config.include('vectum.pyramid_config'). # <---
     ...
 ```
 
-Add any handler configuration to your app's config file. The handler and filters can refer to any handler or filter within `filestorage`, or can refer to any other package by full module path and model name.
+Add any handler configuration to your app's config file. The handler and filters can refer to any handler or filter within `vectum`, or can refer to any other package by full module path and model name.
 
 ```ini
 [app:main]
 # (other config settings)
 
 # Base store with a custom handler and a custom filter
-store.handler = myapp.filestorage.MyCustomHandler
-store.filters[0] = myapp.filestorage.MyCustomFilter
+store.handler = myapp.vectum.MyCustomHandler
+store.filters[0] = myapp.vectum.MyCustomFilter
 
-# Portrait store with a couple of filestorage filters
+# Portrait store with a couple of vectum filters
 store['portrait'].handler = LocalFileHandler
 store['portrait'].handler.base_path = /var/www/static/uploaded_images
 store['portrait'].handler.base_url = http://my.portraits/static
@@ -263,12 +263,12 @@ Methods:
  * `handler` - Gets the configured handler or raises an exception of no handler has been provided. Set this property to set the handler.
  * `sync_handler` - Gets the configured handler as a sync-only handler. Raises an exception if no `handler` has been set.
  * `async_handler` - Gets the configured handler as an async-only handler. Raises an exception if no `handler` has been set or if the configured handler can't be used asynchronously.
- * `finalize_config()` - Walk through all configured objects and check to ensure they have a valid configuration. Lock the `StorageContainer` to prevent any further configuration changes. Will raise a `FilestorageConfigError` if there's a configuration problem.
+ * `finalize_config()` - Walk through all configured objects and check to ensure they have a valid configuration. Lock the `StorageContainer` to prevent any further configuration changes. Will raise a `vectumConfigError` if there's a configuration problem.
  * `async_finalize_config()` - awaitable version of the above call. Necessary for ASGI servers.
  * `finalized` - `True` if the config has been finalized, `False` otherwise.
  * `do_not_use` - `True` if the `handler` has been set to `None`, `False` otherwise.
  * `name` - String name of how this configuration is accessed. `store['a'].name == "['a']"`.
- * `[*]` - Get a sub-configuration object. Raises a `FilestorageConfigError` if the configuration is finalized and this configuration's `handler` hasn't been set.
+ * `[*]` - Get a sub-configuration object. Raises a `vectumConfigError` if the configuration is finalized and this configuration's `handler` hasn't been set.
  * `/ 'name'` - Obtain a `Folder` object with the same save/exist/delete methods as this object which write to the named sub-folder.
 
 Once the handler is set, the store object can be used as a `StorageHandler` object.
@@ -278,7 +278,7 @@ Once the handler is set, the store object can be used as a `StorageHandler` obje
 
 All handlers inherit from `StorageHandlerBase`.
 
-The async version of the Handler can be used for either synchronous or asynchronous operations. The `StorageHandlerBase` by itself can only be used for synchronous operations and any `async_*` method calls will throw an error. To make a new custom handler, start with the [handler template](../master/filestorage/handlers/_template.py).
+The async version of the Handler can be used for either synchronous or asynchronous operations. The `StorageHandlerBase` by itself can only be used for synchronous operations and any `async_*` method calls will throw an error. To make a new custom handler, start with the [handler template](../master/vectum/handlers/_template.py).
 
 > :warning: __Ensure your forms include the attribute enctype=”multipart/form-data”__ or your uploaded files will be empty. [Short example](https://html.com/attributes/form-enctype/) and [more detail](https://developer.mozilla.org/en-US/docs/Web/API/FormData/Using_FormData_Objects#sending_files_using_a_formdata_object).
 
@@ -304,7 +304,7 @@ Methods:
     * `save_file(filename: str, data: BinaryIO)` - Save the binary IO object to the given file.
     * `save_data(filename: str, data: bytes)` - Save the binary data to the given file.
     * `save_field(field: cgi.FieldStorage)` - Save the given field storage object.
-* Asynchronous methods: (all will throw a `FilestorageConfigError` if the handler doesn't support async operations.)
+* Asynchronous methods: (all will throw a `vectumConfigError` if the handler doesn't support async operations.)
     * `async_exists(filename: str)` - Awaitable version
     * `async_size(filename: str)` - Awaitable version
     * `async_get_accessed_time(filename: str)` - Awaitable version
@@ -337,7 +337,7 @@ Abstract Methods to be overridden when sub-classing:
 
 ### Filter
 
-The `FilterBase` is used as a base class for any Filters. These are not intended to be used directly, but to be passed as an optional list to a Handler through the `filters` parameter. To make a new custom filter, start with the [filter template](../master/filestorage/filters/_template.py).
+The `FilterBase` is used as a base class for any Filters. These are not intended to be used directly, but to be passed as an optional list to a Handler through the `filters` parameter. To make a new custom filter, start with the [filter template](../master/vectum/filters/_template.py).
 
 Properties:
 
@@ -346,7 +346,7 @@ Properties:
 Methods:
 
  * `call(item: FileItem)` - Returns the filtered [FileItem](#fileitem).
- * `async_call(item: FileItem)` - Awaitable version of `call`. If the filter can't be used asynchronously, will raise a `FilestorageConfigError`.
+ * `async_call(item: FileItem)` - Awaitable version of `call`. If the filter can't be used asynchronously, will raise a `vectumConfigError`.
  * `validate()` - Checks to ensure the Filter is configured correctly. Might return an Awaitable.
 
 Abstract Methods to be overridden when sub-classing:
@@ -385,20 +385,20 @@ The FileItem can be used as a context manager, where it will modify the read/see
 All are importable via the `exceptions` sub-package. For example:
 
 ```python
-from filestorage.exceptions import FilestorageError
+from vectum.exceptions import vectumError
 ```
 
- * FilestorageError - Base class for any exceptions raised by this library.
+ * vectumError - Base class for any exceptions raised by this library.
  * FileNotAllowed - The provided file is not allowed, either through a [Filter](#filter) or from a [Handler](#handler).
  * FileExtensionNotAllowed - The provided file with the given extension is not allowed, either through a [Filter](#filter) or from a [Handler](#handler).
- * FilestorageConfigError - There was some problem with the configuration.
+ * vectumConfigError - There was some problem with the configuration.
 
 ### Handlers
 
 All handlers are subclasses of the [StorageHandler](#storagehandler) class. These can be imported via the `handlers` sub-package. For example:
 
 ```python
-from filestorage.handlers import LocalFileHandler
+from vectum.handlers import LocalFileHandler
 
 store.handler = LocalFileHandler(base_path='/home/www/uploads`)
 ```
@@ -419,7 +419,7 @@ Store files on the local file system using asynchronous methods.
 
 Async OK.
 
-> :warning: __Requires the `aiofiles` library__, which will be installed with `pip install filestorage['aio_file']`
+> :warning: __Requires the `aiofiles` library__, which will be installed with `pip install vectum['aio_file']`
 
 Parameters:
  * `base_path` - Where to store the files on the local filesystem
@@ -432,7 +432,7 @@ Store files to an S3 bucket. This handler works for synchronous and asynchronous
 
 Async OK.
 
-> :warning: __Requires the `aioboto3` library__, which will be installed with `pip install filestorage['s3']`
+> :warning: __Requires the `aioboto3` library__, which will be installed with `pip install vectum['s3']`
 
 > :warning: __Requires appropriate AWS permissions to the S3 bucket.__
 
@@ -494,7 +494,7 @@ Identical to the [DummyHandler](#dummyhandler), but can be used asynchronously.
 All are importable via the `filters` sub-package. For example:
 
 ```python
-from filestorage.filter import RandomizeFilename
+from vectum.filter import RandomizeFilename
 
 store.handler = DummyHandler(filters=[RandomizeFilename()])
 ```
@@ -522,8 +522,8 @@ Parameters:
 The [DummyHandler](#dummyhandler) or [AsyncDummyHandler](#asyncdummyhandler) are great tools for testing your application. To keep your tests isolated, you can create a new [store](#storagecontainer) object and configure it for each test as needed.
 
 ```python
-from filestorage import StorageContainer
-from filestorage.handlers import AsyncDummyHandler
+from vectum import StorageContainer
+from vectum.handlers import AsyncDummyHandler
 
 def test_store():
     store = StorageContainer()
@@ -541,8 +541,8 @@ Within `tests/conftest.py`:
 ```python
 import pytest
 
-from filestorage import StorageContainer
-from filestorage.handlers import AsyncDummyHandler
+from vectum import StorageContainer
+from vectum.handlers import AsyncDummyHandler
 
 @pytest.fixture
 def dummy_handler():

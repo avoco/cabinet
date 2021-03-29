@@ -1,6 +1,6 @@
 from typing import Dict
 
-from filestorage import StorageContainer, pyramid_config, store
+from vectum import StorageContainer, pyramid_config, store
 
 
 class MockPyramidRegistry:

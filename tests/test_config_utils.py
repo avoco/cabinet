@@ -1,7 +1,7 @@
 import pytest
 
-from filestorage import StorageContainer, config_utils
-from filestorage.exceptions import FilestorageConfigError
+from vectum import StorageContainer, config_utils
+from vectum.exceptions import vectumConfigError
 
 
 @pytest.fixture
@@ -92,7 +92,7 @@ def test_setup_nested_handlers(store):
 
 def test_handler_full_name(store):
     settings = {
-        "store.handler": "filestorage.handlers.DummyHandler",
+        "store.handler": "vectum.handlers.DummyHandler",
     }
     config_utils.setup_from_settings(settings, store)
     store.finalize_config()
@@ -106,7 +106,7 @@ def test_missing_required_parameter(store):
         "store.handler.filters[0]": "ValidateExtension",
         # 'store.handler.filters[0].extensions': "['jpg', 'png']",
     }
-    with pytest.raises(FilestorageConfigError) as err:
+    with pytest.raises(vectumConfigError) as err:
         config_utils.setup_from_settings(settings, store)
 
     assert "store.handler.filters[0]" in str(err.value)
@@ -134,7 +134,7 @@ def test_suggest_filters(store):
         "store.handler.filter[0]": "ValidateExtension",
         "store.handler.filter[0].extensions": "['jpg', 'png']",
     }
-    with pytest.raises(FilestorageConfigError) as err:
+    with pytest.raises(vectumConfigError) as err:
         config_utils.setup_from_settings(settings, store)
 
     assert 'invalid setting "store.handler.filter"' in str(err.value)

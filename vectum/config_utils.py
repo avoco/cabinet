@@ -3,8 +3,8 @@ import importlib
 import inspect
 from typing import Any, Dict, List, Set, Tuple
 
-from filestorage import FilterBase, StorageContainer, StorageHandlerBase
-from filestorage.exceptions import FilestorageConfigError
+from vectum import FilterBase, StorageContainer, StorageHandlerBase
+from vectum.exceptions import vectumConfigError
 
 
 def try_import(default_module: str, model: str):
@@ -86,7 +86,7 @@ def setup_store(
     try:
         handler_class_name = settings_dict["handler"][None]
     except KeyError:
-        raise FilestorageConfigError(
+        raise vectumConfigError(
             f"Pyramid settings has no key for {key_prefix}{name}.handler"
         )
     if handler_class_name.lower() == "none":
@@ -109,18 +109,16 @@ def setup_store(
                 settings_dict=sub_config,
             )
         else:
-            raise FilestorageConfigError(
-                f"Pyramid settings unknown key {key_prefix}.{key}"
-            )
+            raise vectumConfigError(f"Pyramid settings unknown key {key_prefix}.{key}")
 
 
 def get_handler(key_prefix: str, settings_dict: Dict) -> StorageHandlerBase:
     name = f"{key_prefix}.handler"
     handler_name = settings_dict.pop(None)
     try:
-        handler_cls = try_import("filestorage.handlers", handler_name)
+        handler_cls = try_import("vectum.handlers", handler_name)
     except ValueError:
-        raise FilestorageConfigError(f"Pyramid settings bad value for {name}")
+        raise vectumConfigError(f"Pyramid settings bad value for {name}")
 
     valid_args = get_init_properties(handler_cls, StorageHandlerBase)
 
@@ -131,7 +129,7 @@ def get_handler(key_prefix: str, settings_dict: Dict) -> StorageHandlerBase:
             maybe_txt = ""
             if maybe:
                 maybe_txt = f' Did you mean "{name}.{maybe[0]}"?'
-            raise FilestorageConfigError(
+            raise vectumConfigError(
                 f'Pyramid invalid setting "{name}.{key}". {maybe_txt}'
             )
         if key == "filters":
@@ -142,7 +140,7 @@ def get_handler(key_prefix: str, settings_dict: Dict) -> StorageHandlerBase:
     try:
         return handler_cls(**kwargs)
     except Exception as err:
-        raise FilestorageConfigError(f"Pyramid settings bad args for {name}: {err}")
+        raise vectumConfigError(f"Pyramid settings bad args for {name}: {err}")
 
 
 def get_all_filters(key_prefix: str, settings_dict: Dict) -> List[FilterBase]:
@@ -153,7 +151,7 @@ def get_all_filters(key_prefix: str, settings_dict: Dict) -> List[FilterBase]:
         try:
             filter_id = int(filter_ref.lstrip("[").rstrip("]"))
         except Exception as err:
-            raise FilestorageConfigError(
+            raise vectumConfigError(
                 f"Pyramid settings bad key {key_prefix}{filter_ref}: {err}"
             )
         filters.append((filter_id, get_filter(filter_prefix, filter_dict)))
@@ -166,17 +164,15 @@ def get_filter(key_prefix: str, settings_dict: Dict) -> FilterBase:
     """Get a single filter from within the settings_dict"""
     filter_name = settings_dict.pop(None)
     try:
-        filter_cls = try_import("filestorage.filters", filter_name)
+        filter_cls = try_import("vectum.filters", filter_name)
     except ValueError:
-        raise FilestorageConfigError(f"Pyramid settings bad value for {key_prefix}")
+        raise vectumConfigError(f"Pyramid settings bad value for {key_prefix}")
 
     kwargs = {key: decode_kwarg(value) for key, value in settings_dict.items()}
     try:
         return filter_cls(**kwargs)
     except Exception as err:
-        raise FilestorageConfigError(
-            f"Pyramid settings bad args for {key_prefix}: {err}"
-        )
+        raise vectumConfigError(f"Pyramid settings bad args for {key_prefix}: {err}")
 
 
 def unquote(value: str) -> str:
@@ -206,7 +202,7 @@ def decode_kwarg(value: Any) -> Any:
         try:
             return eval(value, {}, {})
         except Exception as err:
-            raise FilestorageConfigError(f"Pyramid settings bad value {value}: {err}")
+            raise vectumConfigError(f"Pyramid settings bad value {value}: {err}")
 
     if value.isdigit():
         return int(value)

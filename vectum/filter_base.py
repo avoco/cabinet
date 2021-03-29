@@ -3,7 +3,7 @@ from asyncio import iscoroutinefunction
 from typing import Awaitable, Optional, Union, cast
 
 from . import utils
-from .exceptions import FilestorageConfigError
+from .exceptions import vectumConfigError
 from .file_item import FileItem
 
 
@@ -24,7 +24,7 @@ class FilterBase(ABC):
     async def async_call(self, item: FileItem) -> FileItem:
         """Apply the filter asynchronously"""
         if not self.async_ok:
-            raise FilestorageConfigError(
+            raise vectumConfigError(
                 f"The {self.__class__.__name__} filter cannot be used " "asynchronously"
             )
 

@@ -16,12 +16,11 @@ try:
     from pyramid.request import Request  # type: ignore
 except ImportError:
     raise ImportError(
-        "In order to use filestorage as a pyramid plugin,"
-        "you must install pyramid first!"
+        "In order to use vectum as a pyramid plugin," "you must install pyramid first!"
     )
 
-from filestorage import StorageContainer, store
-from filestorage.config_utils import setup_from_settings
+from vectum import StorageContainer, store
+from vectum.config_utils import setup_from_settings
 
 
 def includeme(config: Configurator) -> None:
