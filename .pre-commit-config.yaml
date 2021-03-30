@@ -13,7 +13,7 @@ repos:
     rev: v0.790
     hooks:
       - id: mypy
-        args: [filestorage]
+        args: [cabinet]
         pass_filenames: false
 
   - repo: https://github.com/pycqa/isort

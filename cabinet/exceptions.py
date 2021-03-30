@@ -1,22 +1,22 @@
-class FilestorageError(RuntimeError):
+class cabinetError(RuntimeError):
     """Base class for all errors in this library"""
 
     pass
 
 
-class FileNotAllowed(FilestorageError):
+class FileNotAllowed(cabinetError):
     """The provided file is not allowed."""
 
     pass
 
 
-class FileExtensionNotAllowed(FilestorageError):
+class FileExtensionNotAllowed(cabinetError):
     """The provided file extension is not allowed."""
 
     pass
 
 
-class FilestorageConfigError(FilestorageError):
+class cabinetConfigError(cabinetError):
     """Error in the configuration."""
 
     pass

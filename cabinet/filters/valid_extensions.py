@@ -1,8 +1,8 @@
 import os
 from typing import List
 
-from filestorage import FileItem, FilterBase
-from filestorage.exceptions import FileExtensionNotAllowed
+from cabinet import FileItem, FilterBase
+from cabinet.exceptions import FileExtensionNotAllowed
 
 
 class ValidateExtension(FilterBase):

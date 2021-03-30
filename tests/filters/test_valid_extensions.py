@@ -2,9 +2,9 @@ from io import BytesIO
 
 import pytest
 
-from filestorage import FileItem
-from filestorage.exceptions import FileExtensionNotAllowed
-from filestorage.filters import ValidateExtension
+from cabinet import FileItem
+from cabinet.exceptions import FileExtensionNotAllowed
+from cabinet.filters import ValidateExtension
 
 
 @pytest.fixture

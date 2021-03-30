@@ -2,8 +2,8 @@ from io import BytesIO
 
 import pytest
 
-from filestorage import FileItem
-from filestorage.filters import RandomizeFilename
+from cabinet import FileItem
+from cabinet.filters import RandomizeFilename
 
 
 @pytest.fixture

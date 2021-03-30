@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Dict, Optional, Tuple
 
-from filestorage import AsyncStorageHandlerBase, FileItem, StorageHandlerBase
+from cabinet import AsyncStorageHandlerBase, FileItem, StorageHandlerBase
 
 
 class DummyHandler(StorageHandlerBase):
