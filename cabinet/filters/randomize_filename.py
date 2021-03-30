@@ -2,7 +2,7 @@ import os
 from typing import Callable
 from uuid import uuid4
 
-from filestorage import FileItem, FilterBase
+from cabinet import FileItem, FilterBase
 
 
 def random_string_generator(filename: str) -> str:

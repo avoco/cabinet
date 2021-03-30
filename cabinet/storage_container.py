@@ -1,7 +1,7 @@
 from asyncio import get_event_loop, iscoroutine, isfuture
 from typing import Awaitable, Dict, Optional, Union, cast
 
-from .exceptions import FilestorageConfigError
+from .exceptions import cabinetConfigError
 from .handler_base import AsyncStorageHandlerBase, Folder, StorageHandlerBase
 
 
@@ -49,16 +49,14 @@ class StorageContainer(Folder):
     def sync_handler(self) -> StorageHandlerBase:
         handler = self.handler
         if handler is None:
-            raise FilestorageConfigError(f"No handler provided for store{self.name}")
+            raise cabinetConfigError(f"No handler provided for store{self.name}")
         return cast(StorageHandlerBase, handler)
 
     @property
     def async_handler(self) -> AsyncStorageHandlerBase:
         handler = self.handler
         if not isinstance(handler, AsyncStorageHandlerBase):
-            raise FilestorageConfigError(
-                f"No async handler provided for store{self.name}"
-            )
+            raise cabinetConfigError(f"No async handler provided for store{self.name}")
 
         return cast(AsyncStorageHandlerBase, handler)
 
@@ -69,14 +67,14 @@ class StorageContainer(Folder):
         if self._do_not_use:
             return None
         if self._handler is None:
-            raise FilestorageConfigError(f"No handler provided for store{self.name}")
+            raise cabinetConfigError(f"No handler provided for store{self.name}")
         return self._handler
 
     @handler.setter
     def handler(self, handler: Optional[StorageHandlerBase]) -> None:
         """Set the handler for this store"""
         if self._finalized:
-            raise FilestorageConfigError(
+            raise cabinetConfigError(
                 f"Setting store{self.name}.handler: store already finalized!"
             )
         if handler is None:
@@ -85,7 +83,7 @@ class StorageContainer(Folder):
             return
 
         if not isinstance(handler, StorageHandlerBase):
-            raise FilestorageConfigError(
+            raise cabinetConfigError(
                 f"Setting store{self.name}.handler: "
                 f"{handler!r} is not a StorageHandler"
             )
@@ -103,7 +101,7 @@ class StorageContainer(Folder):
             return
 
         if self._handler is None:
-            raise FilestorageConfigError(f"No handler provided for store{self.name}")
+            raise cabinetConfigError(f"No handler provided for store{self.name}")
 
         result = self._handler.validate()
         if iscoroutine(result) or isfuture(result):
@@ -117,7 +115,7 @@ class StorageContainer(Folder):
     def finalize_config(self) -> None:
         event_loop = get_event_loop()
         if event_loop.is_running():
-            raise FilestorageConfigError(
+            raise cabinetConfigError(
                 "Async event loop is already running. "
                 "Must await store.async_finalize_config() instead."
             )
@@ -128,7 +126,7 @@ class StorageContainer(Folder):
         The provided container will be lazily configured.
         """
         if self._finalized and key not in self._children:
-            raise FilestorageConfigError(
+            raise cabinetConfigError(
                 f"Getting store{self.name}[{key!r}]: store already finalized!"
             )
         return self._children.setdefault(key, StorageContainer(name=key, parent=self))

@@ -6,9 +6,9 @@ import pytest
 
 from mock import Mock
 
-from filestorage import FileItem, FilterBase, StorageContainer
-from filestorage.exceptions import FilestorageConfigError
-from filestorage.handlers import AsyncDummyHandler, DummyHandler
+from cabinet import FileItem, FilterBase, StorageContainer
+from cabinet.exceptions import cabinetConfigError
+from cabinet.handlers import AsyncDummyHandler, DummyHandler
 
 
 @pytest.fixture
@@ -73,7 +73,7 @@ async def test_validate_bad_async_filter():
     filter1.async_ok = False
     handler = AsyncDummyHandler(filters=[filter1])
 
-    with pytest.raises(FilestorageConfigError) as err:
+    with pytest.raises(cabinetConfigError) as err:
         await handler.validate()
 
     assert "cannot be used" in str(err.value)
@@ -245,7 +245,7 @@ def test_filter_class_not_instance():
     solution.
     """
     handler = DummyHandler(filters=[MockFilter])
-    with pytest.raises(FilestorageConfigError) as err:
+    with pytest.raises(cabinetConfigError) as err:
         handler.validate()
 
     assert str(err.value) == (

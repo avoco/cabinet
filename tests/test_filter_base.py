@@ -1,7 +1,7 @@
 import pytest
 
-from filestorage import AsyncFilterBase, FileItem, FilterBase
-from filestorage.handlers import AsyncDummyHandler, DummyHandler
+from cabinet import AsyncFilterBase, FileItem, FilterBase
+from cabinet.handlers import AsyncDummyHandler, DummyHandler
 
 
 class SimpleFilter(FilterBase):

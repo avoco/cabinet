@@ -7,7 +7,7 @@ from .storage_container import StorageContainer
 
 
 def _read() -> str:
-    return pkg_resources.get_distribution("filestorage").version
+    return pkg_resources.get_distribution("cabinet").version
 
 
 __version__ = _read()

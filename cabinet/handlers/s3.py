@@ -3,8 +3,8 @@ from datetime import datetime
 from io import BytesIO
 from typing import Awaitable, Optional
 
-from filestorage import AsyncStorageHandlerBase, FileItem
-from filestorage.exceptions import FilestorageConfigError
+from cabinet import AsyncStorageHandlerBase, FileItem
+from cabinet.exceptions import cabinetConfigError
 
 
 try:
@@ -152,7 +152,7 @@ class S3Handler(AsyncStorageHandlerBase):
     async def _validate(self) -> Optional[Awaitable]:
         """Perform any setup or validation."""
         if aioboto3 is None:
-            raise FilestorageConfigError("aioboto3 library required but not installed.")
+            raise cabinetConfigError("aioboto3 library required but not installed.")
 
         # Call this in order to populate the options
         self.__conn_options
@@ -162,7 +162,7 @@ class S3Handler(AsyncStorageHandlerBase):
         """Perform a read, check, delete set of operations on a dummy file."""
         item = self.get_item(
             filename=f"__delete_me__{uuid.uuid4()}.txt",
-            data=BytesIO(b"Credential test run from the filestorage library."),
+            data=BytesIO(b"Credential test run from the cabinet library."),
         )
         async with self.resource as s3:
             filename = await self._async_save(item, s3)
