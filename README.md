@@ -26,8 +26,6 @@ Table of Contents
             * [Configure the Store](#configure-the-store)
          * [Folders](#folders)
          * [Adding Filters](#adding-filters)
-      * [Configuration](#configuration)
-         * [Pyramid](#pyramid)
       * [Classes](#classes)
          * [StorageContainer](#storagecontainer)
          * [StorageHandler](#storagehandler)
@@ -197,60 +195,6 @@ store.save_data(filename='ignored name.txt', data=b'contents')
 ```
 
 For more on filters, see the [Filter](#filter) class definition.
-
-## Configuration
-
-### Pyramid
-
-This library can behave as a Pyramid plugin. When doing so, it will read from the Pyramid configuration and set up the handler(s) defined there. The `store` will also be available on the `request` object as `request.store`.
-
-To set it up, include `cabinet.pyramid_config` in your configuration using the [Pyramid Configurator's include](.https://docs.pylonsproject.org/projects/pyramid/en/latest/api/config.html#pyramid.config.Configurator.include) method.
-
-```python
-from pyramid.config import Configurator
-
-def main(global_config, **settings):
-    config = Configurator()
-    config.include('cabinet.pyramid_config'). # <---
-    ...
-```
-
-Add any handler configuration to your app's config file. The handler and filters can refer to any handler or filter within `cabinet`, or can refer to any other package by full module path and model name.
-
-```ini
-[app:main]
-# (other config settings)
-
-# Base store with a custom handler and a custom filter
-store.handler = myapp.cabinet.MyCustomHandler
-store.filters[0] = myapp.cabinet.MyCustomFilter
-
-# Portrait store with a couple of cabinet filters
-store['portrait'].handler = LocalFileHandler
-store['portrait'].handler.base_path = /var/www/static/uploaded_images
-store['portrait'].handler.base_url = http://my.portraits/static
-store['portrait'].handler.filters[0] = RandomizeFilename
-store['portrait'].handler.filters[1] = ValidateExtension
-store['portrait'].handler.filters[1].extensions = ['jpg', 'png']
-
-# Another store that exists, but has been disabled.
-store['not_used'].handler = None
-```
-
-Any parameters for filters and handlers are decoded and passed in as kwargs. Anything that looks like a list, set or dict literal is `eval`ed and bare whole numbers are converted to `int`. You can force anything to be a string by enclosing it in single or double quotes: `"50"`.
-
-The store is then usable in any [view](https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/views.html#defining-a-view-callable-as-a-function):
-
-```python
-def save_file(request):
-    uploaded_file = request.POST['file']
-    filename = request.store.save_field(uploaded_file)
-    return Response(f'Saved to {filename}!')
-```
-
-Additional optional settings:
-  * `store.request_property` - (Default `store`) - Name of the property to use on the request object. For example, set this to `my_store` then access the store through `request.my_store`.
-  * `store.use_global` - (Default `True`) - Use the global `store` object. If set to `False` then the `request.store` object will independent of the global `store` object.
 
 ## Classes
 
