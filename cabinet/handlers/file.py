@@ -12,11 +12,13 @@ except ImportError:
     aiofiles = None  # type: ignore
 
 from cabinet import AsyncStorageHandlerBase, FileItem, StorageHandlerBase, utils
-from cabinet.exceptions import cabinetConfigError
+from cabinet.exceptions import CabinetConfigError
 
 
 class LocalFileHandler(StorageHandlerBase):
-    """Class for storing files locally"""
+    """
+    Class for storing files locally
+    """
 
     async_ok = False
     chunk_size = 1024 * 8
@@ -28,11 +30,27 @@ class LocalFileHandler(StorageHandlerBase):
         self._created_dirs: Set[str] = set()
 
     def local_path(self, item: FileItem) -> str:
-        """Returns the local path to the file."""
+        """
+        Returns the local path to the file.
+
+        :param: item: The FileItem to retrieve local_path for
+        :type: item: FileItem
+
+        :return: the local path to the file
+        :rtype: bool
+        """
         return os.path.join(self.base_path, item.fs_path)
 
     def make_dir(self, item: Optional[FileItem] = None) -> None:
-        """Ensures the provided path exists."""
+        """
+        Ensures the provided path exists.
+
+        :param: item: An optional FileItem to ensure path to exists
+        :type: item: FileItem
+
+        :return: None
+        :rtype: None
+        """
         if not item:
             item = self.get_item("")
         else:
@@ -53,8 +71,8 @@ class LocalFileHandler(StorageHandlerBase):
             item = self.get_item("")
             if not self._exists(item):
                 local_path = self.local_path(item)
-                raise cabinetConfigError(
-                    f"Configured directory {local_path!r} does not exist"
+                raise CabinetConfigError(
+                    "Configured directory {} does not exist".format(local_path)
                 )
 
     def _exists(self, item: FileItem) -> bool:
@@ -101,23 +119,40 @@ class LocalFileHandler(StorageHandlerBase):
         return item.filename
 
     def resolve_filename(self, item: FileItem) -> FileItem:
-        """Ensures a unique name for this file in the folder"""
+        """
+        Ensures a unique name for this file in the folder
+
+        :param: item: The FileItem to ensure unique name for
+        :type: item: FileItem
+
+        :return: FileItem with unique name
+        :rtype: FileItem
+        """
         if not self._exists(item):
             return item
 
         basename, ext = os.path.splitext(item.filename)
         for counter in range(1, 1000000):
-            filename = f"{basename}-{counter}{ext}"
+            filename = "{}-{}{}".format(basename, counter, ext)
             item = item.copy(filename=filename)
             if not self._exists(item):
                 return item
         else:
-            raise RuntimeError(f"Cannot get unique name for file {basename}{ext}")
+            raise RuntimeError(
+                "Cannot get unique name for file {}{}".format(basename, ext)
+            )
 
 
 def os_wrap(fn: utils.SyncCallable) -> utils.AsyncCallable:
-    """Use the wrap function from aiofiles to wrap the additional required
+    """
+    Use the wrap function from aiofiles to wrap the additional required
     os methods
+
+    :param: fn: The function to wrap aiofiles around
+    :type: fn: utils.SyncCallable
+
+    :return: The asynchronous function
+    :rtype: utils.AsyncCallable
     """
     return aiofiles.os.wrap(fn)  # type: ignore
 
@@ -127,10 +162,20 @@ def disabled_method(*args, **kwargs):
 
 
 class AsyncLocalFileHandler(LocalFileHandler, AsyncStorageHandlerBase):
-    """Class for storing files locally"""
+    """
+    Class for storing files locally
+    """
 
     async def async_make_dir(self, item: Optional[FileItem] = None):
-        """Ensures the provided path exists."""
+        """
+        Ensures the provided path exists.
+
+        :param: item: An optional FileItem to ensure path to exists
+        :type: item: FileItem
+
+        :return: None
+        :rtype: None
+        """
         if not item:
             item = self.get_item("")
         else:
@@ -144,9 +189,9 @@ class AsyncLocalFileHandler(LocalFileHandler, AsyncStorageHandlerBase):
 
     def validate(self) -> None:
         if aiofiles is None:
-            raise cabinetConfigError(
+            raise CabinetConfigError(
                 "The aiofiles library is required for using "
-                f"{self.__class__.__name__}"
+                "{}".format(self.__class__.__name__)
             )
 
         # Ensure the sync methods can operate while validating
@@ -187,7 +232,7 @@ class AsyncLocalFileHandler(LocalFileHandler, AsyncStorageHandlerBase):
 
     async def _async_save(self, item: FileItem) -> str:
         if item.data is None:
-            raise RuntimeError("No data for file {item.filename!r}")
+            raise RuntimeError("No data for file {}".format(item.filename))
 
         if self.auto_make_dir:
             await self.async_make_dir(item)
@@ -205,18 +250,28 @@ class AsyncLocalFileHandler(LocalFileHandler, AsyncStorageHandlerBase):
         return item.filename
 
     async def async_resolve_filename(self, item: FileItem) -> FileItem:
-        """Ensures a unique name for this file in the folder"""
+        """
+        Ensures a unique name for this file in the folder
+
+        :param: item: The FileItem to ensure unique name for
+        :type: item: FileItem
+
+        :return: FileItem with unique name
+        :rtype: FileItem
+        """
         if not await self._async_exists(item):
             return item
 
         basename, ext = os.path.splitext(item.filename)
         for counter in range(1, 1000000):
-            filename = f"{basename}-{counter}{ext}"
+            filename = "{}-{}{}".format(basename, counter, ext)
             item = item.copy(filename=filename)
             if not await self._async_exists(item):
                 return item
         else:
-            raise RuntimeError(f"Cannot get unique name for file {basename}{ext}")
+            raise RuntimeError(
+                "Cannot get unique name for file {}{}".format(basename, ext)
+            )
 
     def _save(self, item: FileItem) -> str:
         if not self.allow_sync_methods:

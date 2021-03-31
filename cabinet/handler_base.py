@@ -16,7 +16,7 @@ from typing import (
 from urllib.parse import urljoin
 
 from . import utils
-from .exceptions import cabinetConfigError
+from .exceptions import CabinetConfigError
 from .file_item import FileItem
 from .filter_base import FilterBase
 
@@ -28,14 +28,16 @@ if TYPE_CHECKING:
 
 
 class StorageHandlerBase(ABC):
-    """Base class for all storage handlers."""
+    """
+    Base class for all storage handlers.
+    """
 
     def __init__(
         self,
         base_url: Optional[str] = None,
         filters: Optional[List[FilterBase]] = None,
         path: Union[Tuple[str, ...], List[str], str, None] = None,
-    ):
+    ) -> None:
         self.handler_name: Optional[str] = None
         self._base_url = base_url
         self._filters = filters or []
@@ -51,33 +53,57 @@ class StorageHandlerBase(ABC):
 
     @property
     def base_url(self) -> str:
+        """
+        The base url for any saved file.
+
+        :return: The base url
+        :rtype: str
+        """
         return self._base_url or ""
 
     @property
     def path(self) -> Tuple[str, ...]:
+        """
+        The path within the store for any saved file.
+
+        :return: The path
+        :rtype: tuple
+        """
         return self._path
 
     @property
     def filters(self) -> List[FilterBase]:
+        """
+        List of filters to apply, in order, when saving any file through this handler.
+
+        :return: The list, in order, of filters to apply.
+        :rtype: list
+        """
         return self._filters
 
     def __str__(self):
         return f'<{self.__class__.__name__}("{self.handler_name}")>'
 
     def validate(self) -> Optional[Awaitable]:
-        """Validate that the configuration is set up properly and the necessary
+        """
+        Validate that the configuration is set up properly and the necessary
         libraries are available.
 
-        If any configuration is amiss, raises a cabinetConfigError.
+        :raises: CabinetConfigError: Error in the configuration
+
+        :return: List of coroutines or None depending on if filter is asynchronous
+        :rtype: Optional[Awaitable]
         """
         coroutines: List[Awaitable] = []
         # Verify that any provided filters are valid.
         for filter_ in self._filters:
             if inspect.isclass(filter_):
                 filter_name: str = filter_.__name__  # type: ignore
-                raise cabinetConfigError(
-                    f"Filter {filter_name} is a class, not an instance. "
-                    f'Did you mean to use "filters=[{filter_name}()]" instead?'
+                raise CabinetConfigError(
+                    "Filter {} is a class, not an instance. ".format(filter_name)
+                    + 'Did you mean to use "filters=[{}()]" instead?'.format(
+                        filter_name
+                    )
                 )
             result = filter_.validate()
             if iscoroutine(result) or isfuture(result):
@@ -92,7 +118,9 @@ class StorageHandlerBase(ABC):
         return gather(*coroutines)
 
     def _validate(self) -> Optional[Awaitable]:
-        """Validate any subclass."""
+        """
+        Validate any subclass.
+        """
         pass
 
     def get_item(
@@ -101,6 +129,21 @@ class StorageHandlerBase(ABC):
         subpath: Optional[Tuple[str, ...]] = None,
         data: Optional[BinaryIO] = None,
     ) -> FileItem:
+        """
+        Returns FileItem object for further manipulation.
+
+        :param: filename: The filename for the file
+        :type: filename: str
+
+        :param: subpath: The subpath for the file
+        :type: subpath: tuple
+
+        :param: data: The data to write to the file
+        :type: data: bytes
+
+        :return: The FileItem
+        :rtype: FileItem
+        """
         path = self._path
         if subpath is not None:
             path = path + subpath
@@ -108,13 +151,29 @@ class StorageHandlerBase(ABC):
         return FileItem(filename=filename, path=path, data=data)
 
     def get_url(self, filename: str) -> str:
-        """Return the URL of a given filename in this storage container."""
+        """
+        Return the URL of a given filename in this storage container.
+
+        :param: filename: The filename to retrieve the url for
+        :type: filename: str
+
+        :return: The url of the filename
+        :rtype: str
+        """
         item = self.get_item(filename)
         return urljoin(self.base_url, item.url_path)
 
     @classmethod
     def sanitize_filename(cls, filename: str) -> str:
-        """Perform a quick pass to sanitize the filename"""
+        """
+        Perform a quick pass to sanitize the filename
+
+        :param: filename: The filename to sanitize
+        :type: filename: str
+
+        :return: The sanitized filename
+        :rtype: str
+        """
         # Strip out any . prefix - which should eliminate attempts to write
         # special Unix files
         filename = filename.lstrip(".")
@@ -130,99 +189,194 @@ class StorageHandlerBase(ABC):
         return filename
 
     def exists(self, filename: str) -> bool:
-        """Determine if the given filename exists in the storage container."""
+        """
+        Determine if the given path/filename exists in the storage container.
+
+        :param: filename: The filename with path to determine existence for
+        :type: filename: str
+
+        :return: Whether the filename exists in the storage container or not
+        :rtype: bool
+        """
         item = self.get_item(filename)
         return cast(bool, self._exists(item))
 
     @abstractmethod
     def _exists(self, item: FileItem) -> bool:
-        """Determine if the given path/filename exists in the storage
-        container.
+        """
+        Determine if the given path/filename exists in the storage container.
+
+        :param: item: The FileItem to determine existence for
+        :type: item: FileItem
+
+        :return: Whether the filename exists in the storage container or not
+        :rtype: bool
         """
         pass
 
     def size(self, filename: str) -> int:
-        """Retrieve file size for file in storage container given filename.
-        Returns the size, in bytes of the file.
+        """
+        Retrieve file size for file in storage container given filename.
+
+        :param: filename: The filename to retrieve size for
+        :type: filename: str
+
+        :return: The size, in bytes, of the file in the storage container.
+        :rtype: int
         """
         item = self.get_item(filename)
         return self._size(item)
 
     @abstractmethod
     def _size(self, item: FileItem) -> int:
-        """Retrieve file size for file in storage container given filename.
-        Returns the size, in bytes of the file.
+        """
+        Retrieve file size for file in storage container given filename.
+
+        :param: item: The FileItem to retrieve size for
+        :type: item: FileItem
+
+        :return: The size, in bytes, of the file in the storage container.
+        :rtype: int
         """
         pass
 
     def get_accessed_time(self, filename: str) -> datetime:
-        """Retrieve time of last access for file in storage container given filename.
-        Returns the time of last access, in number of seconds since the epoch.
+        """
+        Retrieve time of last access for file in storage container.
+
+        :param: filename: The filename to retrieve access time for
+        :type: filename: str
+
+        :return: The time of last access for the given filename
+        :rtype: datetime
         """
         item = self.get_item(filename)
         return self._get_accessed_time(item)
 
     @abstractmethod
     def _get_accessed_time(self, item: FileItem) -> datetime:
-        """Retrieve time of last access for file in storage container given filename.
-        Returns the time of last access, in number of seconds since the epoch.
+        """
+        Retrieve time of last access for file in storage container.
+
+        :param: item: The FileItem to retrieve access time for
+        :type: item: FileItem
+
+        :return: The time of last access for the given filename
+        :rtype: datetime
         """
         pass
 
     def get_created_time(self, filename: str) -> datetime:
-        """Retrieve creation time for file in storage container given filename.
-        Returns the creation time, in number of seconds since the epoch.
+        """
+        Retrieve creation time for file in storage container given filename.
+
+        NOTE: On Unix systems this is the time of last metadata change and on
+              others, such as Windows, is the creation time.
+
+        :param: filename: The filename to retrieve time of creation for
+        :type: filename: str
+
+        :return: The time of creation for the given filename
+        :rtype: datetime
         """
         item = self.get_item(filename)
         return self._get_created_time(item)
 
     @abstractmethod
     def _get_created_time(self, item: FileItem) -> datetime:
-        """Retrieve creation time for file in storage container given filename.
-        Returns the creation time, in number of seconds since the epoch.
+        """
+        Retrieve creation time for file in storage container given filename.
+
+        NOTE: On Unix systems this is the time of last metadata change and on
+              others, such as Windows, is the creation time.
+
+        :param: item: The FileItem to retrieve time of creation for
+        :type: item: FileItem
+
+        :return: The time of creation for the given filename
+        :rtype: datetime
         """
         pass
 
     def get_modified_time(self, filename: str) -> datetime:
-        """Retrieve time of last modification for file in storage container given filename.
-        Returns the time of last modification, in number of seconds since the epoch.
+        """
+        Retrieve time of last modification for file in storage container given filename.
+
+        :param: filename: The filename to retrieve time of last modification for
+        :type: filename: str
+
+        :return: The time of last modification for the given filename
+        :rtype: datetime
         """
         item = self.get_item(filename)
         return self._get_modified_time(item)
 
     @abstractmethod
     def _get_modified_time(self, item: FileItem) -> datetime:
-        """Retrieve time of last modification for file in storage container given filename.
-        Returns the time of last modification, in number of seconds since the epoch.
+        """
+        Retrieve time of last modification for file in storage container given filename.
+
+        :param: item: The FileItem to retrieve time of last modification for
+        :type: item: FileItem
+
+        :return: The time of last modification for the given filename
+        :rtype: datetime
         """
         pass
 
     def delete(self, filename: str) -> None:
-        """Delete the given filename from the storage container, whether or not
+        """
+        Delete the given filename from the storage container, whether or not
         it exists.
+
+        :param: filename: The filename to delete
+        :type: filename: str
+
+        :return: None
+        :rtype: None
         """
         item = self.get_item(filename)
         return self._delete(item)
 
     @abstractmethod
     def _delete(self, item: FileItem) -> None:
-        """Delete the given filename from the storage container, whether or not
-        it exists.
+        """
+        Delete the given filename from the storage container, whether or not it exists.
+
+        :param: item: The FileItem to delete
+        :type: item: FileItem
+
+        :return: None
+        :rtype: None
         """
         pass
 
     @abstractmethod
     def _save(self, item: FileItem) -> str:
-        """Save the provided file to the given filename in the storage
-        container. Returns the name of the file saved
+        """
+        Save the provided file to the given filename in the storage container.
+
+        :param: item: The FileItem to be saved
+        :type: item: FileItem
+
+        :return: The name of the saved file
+        :rtype: str
         """
         pass
 
     def save_file(self, filename: str, data: BinaryIO) -> str:
-        """Verifies that the provided filename is legitimate and saves it to
-        the storage container.
+        """
+        Verifies that the provided filename is legitimate and saves it to the storage
+        container.
 
-        Returns the filename that was saved.
+        :param: filename: The name of the file to be saved
+        :type: filename: str
+
+        :param: data: The data to write to the file
+        :type: data: bytes
+
+        :return: The name of the saved file
+        :rtype: str
         """
         filename = self.sanitize_filename(filename)
         item = self.get_item(filename, data=data)
@@ -233,42 +387,75 @@ class StorageHandlerBase(ABC):
         return self._save(item)
 
     def save_field(self, field: "cgi.FieldStorage") -> str:
-        """Save a file stored in a CGI field."""
+        """
+        Save a file stored in a CGI field.
+
+        :param: field: The CGI field to save
+        :type: field: cgi.FieldStorage
+
+        :return: The name of the saved file
+        :rtype: str
+        """
         if not field.file:
             raise RuntimeError("No file data in the field")
 
         return self.save_file(field.filename or "file", cast(BinaryIO, field.file))
 
     def save_data(self, filename: str, data: bytes) -> str:
-        """Save a file from the byte data provided."""
+        """
+        Save a file from the byte data provided.
+
+        :param: filename: The filename to save
+        :type: filename: str
+
+        :data: The data to write to the file
+        :type: data: bytes
+
+        :return: The name of the saved file
+        :rtype: str
+        """
         fileio = BytesIO(data)
         return self.save_file(filename, fileio)
 
 
 class AsyncStorageHandlerBase(StorageHandlerBase, ABC):
-    """Base class for all asynchronous storage handlers."""
+    """
+    Base class for all asynchronous storage handlers.
+    """
 
-    def __init__(self, allow_sync_methods=True, **kwargs):
+    def __init__(self, allow_sync_methods=True, **kwargs) -> None:
         self.allow_sync_methods = allow_sync_methods
         super().__init__(**kwargs)
 
     def validate(self) -> Optional[Awaitable]:
-        """Validate that the configuration is set up properly and the necessary
+        """
+        Validate that the configuration is set up properly and the necessary
         libraries are available.
 
-        If anything is amiss, raises a cabinetConfigError.
+        :raises: CabinetConfigError: Error in the configuration
+
+        :return: List of coroutines or None depending on if filter is asynchronous
+        :rtype: Optional[Awaitable]
         """
         # Verify that any provided filters are ok to use.
         for filter_ in self.filters:
             if not filter_.async_ok:
-                raise cabinetConfigError(
-                    f"Filter {filter_} cannot be used in "
-                    f"asynchronous storage handler {self}"
+                raise CabinetConfigError(
+                    "Filter {} cannot be used in ".format(filter_)
+                    + "asynchronous storage handler {}".format(self)
                 )
         return super().validate()
 
     async def async_exists(self, filename: str) -> bool:
-        """Determine if the given filename exists in the storage container."""
+        """
+        Determine if the given path/filename exists in the storage container.
+
+        :param: filename: The filename with path to determine existence
+        :type: filename: str
+
+        :return: Whether the filename exists in the storage container or not
+        :rtype: bool
+        """
         item = self.get_item(filename)
         return await self._async_exists(item)
 
@@ -279,12 +466,26 @@ class AsyncStorageHandlerBase(StorageHandlerBase, ABC):
 
     @abstractmethod
     async def _async_exists(self, item: FileItem) -> bool:
-        """Determine if the given filename exists in the storage container."""
+        """
+        Determine if the given path/filename exists in the storage container.
+
+        :param: filename: The filename with path to determine existence
+        :type: filename: str
+
+        :return: Whether the filename exists in the storage container or not
+        :rtype: bool
+        """
         pass
 
     async def async_size(self, filename: str) -> int:
-        """Retrieve file size for file in storage container given filename.
-        Returns the size, in bytes of the file.
+        """
+        Retrieve file size for file in storage container given filename.
+
+        :param: filename: The filename to retrieve size of
+        :type: filename: str
+
+        :return: The size, in bytes, of the file in the storage container.
+        :rtype: int
         """
         item = self.get_item(filename)
         return await self._async_size(item)
@@ -296,14 +497,26 @@ class AsyncStorageHandlerBase(StorageHandlerBase, ABC):
 
     @abstractmethod
     async def _async_size(self, item: FileItem) -> int:
-        """Retrieve file size for file in storage container given filename.
-        Returns the size, in bytes of the file.
+        """
+        Retrieve file size for file in storage container given filename.
+
+        :param: filename: The filename to retrieve size of
+        :type: filename: str
+
+        :return: The size, in bytes, of the file in the storage container.
+        :rtype: int
         """
         pass
 
     async def async_get_accessed_time(self, filename: str) -> datetime:
-        """Retrieve time of last access for file in storage container given filename.
-        Returns the time of last access, in number of seconds since the epoch.
+        """
+        Retrieve time of last access for file in storage container.
+
+        :param: filename: The filename to retrieve access time
+        :type: filename: str
+
+        :return: The time of last access for the given filename
+        :rtype: datetime
         """
         item = self.get_item(filename)
         return await self._async_get_accessed_time(item)
@@ -315,14 +528,29 @@ class AsyncStorageHandlerBase(StorageHandlerBase, ABC):
 
     @abstractmethod
     async def _async_get_accessed_time(self, item: FileItem) -> datetime:
-        """Retrieve time of last access for file in storage container given filename.
-        Returns the time of last access, in number of seconds since the epoch.
+        """
+        Retrieve time of last access for file in storage container.
+
+        :param: filename: The filename to retrieve access time
+        :type: filename: str
+
+        :return: The time of last access for the given filename
+        :rtype: datetime
         """
         pass
 
     async def async_get_created_time(self, filename: str) -> datetime:
-        """Retrieve creation time for file in storage container given filename.
-        Returns the creation time, in number of seconds since the epoch.
+        """
+        Retrieve creation time for file in storage container given filename.
+
+        NOTE: On Unix systems this is the time of last metadata change and on
+              others, such as Windows, is the creation time.
+
+        :param: filename: The filename to retrieve time of creation for
+        :type: filename: str
+
+        :return: The time of creation for the given filename
+        :rtype: datetime
         """
         item = self.get_item(filename)
         return await self._async_get_created_time(item)
@@ -334,14 +562,29 @@ class AsyncStorageHandlerBase(StorageHandlerBase, ABC):
 
     @abstractmethod
     async def _async_get_created_time(self, item: FileItem) -> datetime:
-        """Retrieve creation time for file in storage container given filename.
-        Returns the creation time, in number of seconds since the epoch.
+        """
+        Retrieve creation time for file in storage container given filename.
+
+        NOTE: On Unix systems this is the time of last metadata change and on
+              others, such as Windows, is the creation time.
+
+        :param: filename: The filename to retrieve time of creation for
+        :type: filename: str
+
+        :return: The time of creation for the given filename
+        :rtype: datetime
         """
         pass
 
     async def async_get_modified_time(self, filename: str) -> datetime:
-        """Retrieve time of last modification for file in storage container given filename.
-        Returns the time of last modification, in number of seconds since the epoch.
+        """
+        Retrieve time of last modification for file in storage container given filename.
+
+        :param: filename: The filename to retrieve time of last modification for
+        :type: filename: str
+
+        :return: The time of last modification for the given filename
+        :rtype: datetime
         """
         item = self.get_item(filename)
         return await self._async_get_modified_time(item)
@@ -353,14 +596,27 @@ class AsyncStorageHandlerBase(StorageHandlerBase, ABC):
 
     @abstractmethod
     async def _async_get_modified_time(self, item: FileItem) -> datetime:
-        """Retrieve time of last modification for file in storage container given filename.
-        Returns the time of last modification, in number of seconds since the epoch.
+        """
+        Retrieve time of last modification for file in storage container given filename.
+
+        :param: filename: The filename to retrieve time of last modification for
+        :type: filename: str
+
+        :return: The time of last modification for the given filename
+        :rtype: datetime
         """
         pass
 
     async def async_delete(self, filename: str) -> None:
-        """Delete the given filename from the storage container, whether or not
+        """
+        Delete the given filename from the storage container, whether or not
         it exists.
+
+        :param: filename: The filename to delete
+        :type: filename: str
+
+        :return: None
+        :rtype: None
         """
         item = self.get_item(filename)
         await self._async_delete(item)
@@ -372,8 +628,15 @@ class AsyncStorageHandlerBase(StorageHandlerBase, ABC):
 
     @abstractmethod
     async def _async_delete(self, item: FileItem) -> None:
-        """Delete the given filename from the storage container, whether or not
+        """
+        Delete the given filename from the storage container, whether or not
         it exists.
+
+        :param: filename: The filename to delete
+        :type: filename: str
+
+        :return: None
+        :rtype: None
         """
         pass
 
@@ -384,16 +647,26 @@ class AsyncStorageHandlerBase(StorageHandlerBase, ABC):
 
     @abstractmethod
     async def _async_save(self, item: FileItem) -> str:
-        """Save the provided file to the given filename in the storage
-        container. Returns the name of the file saved.
+        """
+        Save the provided file to the given filename in the storage container.
+
+        :param: item: The FileItem to be saved
+        :type: item: FileItem
+
+        :return: The name of the saved file
+        :rtype: str
         """
         pass
 
     async def async_save_file(self, filename: str, data: BinaryIO) -> str:
-        """Verifies that the provided filename is legitimate and saves it to
-        the storage container.
+        """
+        Save the provided file to the given filename in the storage container.
 
-        Returns the filename that was saved.
+        :param: item: The FileItem to be saved
+        :type: item: FileItem
+
+        :return: The name of the saved file
+        :rtype: str
         """
         filename = self.sanitize_filename(filename)
         item = self.get_item(filename, data=data)
@@ -406,7 +679,15 @@ class AsyncStorageHandlerBase(StorageHandlerBase, ABC):
         return filename
 
     async def async_save_field(self, field: "cgi.FieldStorage") -> str:
-        """Save a file stored in a CGI field."""
+        """
+        Save a file stored in a CGI field.
+
+        :param: field: The CGI field to save
+        :type: field: cgi.FieldStorage
+
+        :return: The name of the saved file
+        :rtype: str
+        """
         if not field.file:
             raise RuntimeError("No file data in the field")
 
@@ -415,39 +696,83 @@ class AsyncStorageHandlerBase(StorageHandlerBase, ABC):
         )
 
     async def async_save_data(self, filename: str, data: bytes) -> str:
-        """Save a file from the byte data provided."""
+        """
+        Save a file from the byte data provided.
+
+        :param: filename: The filename to save
+        :type: filename: str
+
+        :data: The data to write to the file
+        :type: data: bytes
+
+        :return: The name of the saved file
+        :rtype: str
+        """
         fileio = BytesIO(data)
         return await self.async_save_file(filename, fileio)
 
 
 class Folder(AsyncStorageHandlerBase):
-    """A handler for a sub-folder of a container.
+    """
+    A handler for a sub-folder of a container.
 
-    Note that this does not carry any config and depends on the
-    StorageContainer to provide the handler when needed.
+    NOTE: This does not carry any config and depends on the
+          StorageContainer to provide the handler when needed.
     """
 
     @property
-    def async_ok(self):
+    def async_ok(self) -> bool:
+        """
+        Determines if this handler can be used asynchronously.
+
+        :return: Whether or not it's okay to use asynchronous methods with this handler
+        :rtype: bool
+        """
         return isinstance(self._store.handler, AsyncStorageHandlerBase)
 
     @property
     def filters(self) -> List[FilterBase]:
+        """
+        List of filters to apply, in order, when saving any file through this handler.
+
+        :return: The list, in order, of filters to apply.
+        :rtype: list
+        """
         return self._store.sync_handler.filters
 
     @property
     def base_url(self) -> str:
+        """
+        The base url for any saved file.
+
+        :return: The base url
+        :rtype: str
+        """
         return self._store.sync_handler.base_url
 
-    def __init__(self, store: "StorageContainer", path: Tuple[str, ...]):
+    def __init__(self, store: "StorageContainer", path: Tuple[str, ...]) -> None:
         super().__init__(path=path)
         self._store = store
 
     def subfolder(self, folder_name: str) -> "Folder":
-        """Get a subfolder for this folder"""
+        """
+        Get a sub-folder for this folder
+
+        :param: folder_name: The folder name to retrieve sub-folder for
+        :type: folder_name: str
+
+        :return: The sub-folder
+        :rtype: Folder
+        """
         return Folder(store=self._store, path=self._path + (folder_name,))
 
     def __eq__(self, other) -> bool:
+        """
+        Allows equality testing with folders.
+
+        :return: Whether or not the folder is itself
+        :rtype: bool
+        """
         return (
             isinstance(other, Folder)
             and (self._store is other._store)
@@ -455,97 +780,225 @@ class Folder(AsyncStorageHandlerBase):
         )
 
     def __truediv__(self, other: str) -> "Folder":
-        """Get a new subfolder when using the divide operator.
+        """
+        Get a new sub-folder when using the divide operator.
 
         Allows building a path with path-looking code:
-            new_store = store / 'folder' / 'subfolder'
+            new_store = store / 'folder' / 'sub-folder'
+
+        :param: other: The folder names to create sub-folder
+        :type: other: str
+
+        :return: A new sub-folder with the specified path
+        :rtype: Folder
         """
         return self.subfolder(other)
 
     def _get_subfolder_file_item(self, item: FileItem) -> FileItem:
+        """
+        Returns a FileItem from within folder.
+
+        :param: item: The FileItem to retrieve
+        :type: item: FileItem
+
+        :return: The specified FileItem
+        :rtype: FileItem
+        """
         new_path = self._store.sync_handler.path + self._path
         return FileItem(filename=item.filename, path=new_path, data=item.data)
 
     # Pass through any exists methods
 
     def _exists(self, item: FileItem) -> bool:
-        """Return the handler's _exists method from this folder"""
+        """
+        Return the handler's _exists method from this folder
+
+        :param: item: The FileItem to determine existence for
+        :type: item: FileItem
+
+        :return: Whether the filename exists in the storage container or not
+        :rtype: bool
+        """
         item = self._get_subfolder_file_item(item)
         return self._store.sync_handler._exists(item)
 
     async def _async_exists(self, item: FileItem) -> bool:
-        """Return the handler's _async_exists method from this folder"""
+        """
+        Return the handler's _async_exists method from this folder
+
+        :param: item: The FileItem to determine existence for
+        :type: item: FileItem
+
+        :return: Whether the filename exists in the storage container or not
+        :rtype: bool
+        """
         item = self._get_subfolder_file_item(item)
         return await self._store.async_handler._async_exists(item)
 
     # Pass through any size methods
 
     def _size(self, item: FileItem) -> int:
-        """Return the handler's _size from this folder"""
+        """
+        Return the handler's _size from this folder
+
+        :param: item: The FileItem to retrieve size for
+        :type: item: FileItem
+
+        :return: The size, in bytes, of the file in the storage container.
+        :rtype: int
+        """
         item = self._get_subfolder_file_item(item)
         return self._store.sync_handler._size(item)
 
     async def _async_size(self, item: FileItem) -> int:
-        """Return the handler's _async_size from this folder"""
+        """
+        Return the handler's _async_size from this folder
+
+        :param: item: The FileItem to retrieve size for
+        :type: item: FileItem
+
+        :return: The size, in bytes, of the file in the storage container.
+        :rtype: int
+        """
         item = self._get_subfolder_file_item(item)
         return await self._store.async_handler._async_size(item)
 
     # Pass through any get_accessed_time methods
 
     def _get_accessed_time(self, item: FileItem) -> datetime:
-        """Return the handler's _get_accessed_time from this folder"""
+        """
+        Return the handler's _get_accessed_time from this folder
+
+        :param: item: The FileItem to retrieve access time for
+        :type: item: FileItem
+
+        :return: The time of last access for the given filename
+        :rtype: datetime
+        """
         item = self._get_subfolder_file_item(item)
         return self._store.sync_handler._get_accessed_time(item)
 
     async def _async_get_accessed_time(self, item: FileItem) -> datetime:
-        """Return the handler's _async_get_accessed_time from this folder"""
+        """
+        Return the handler's _async_get_accessed_time from this folder
+
+        :param: item: The FileItem to retrieve access time for
+        :type: item: FileItem
+
+        :return: The time of last access for the given filename
+        :rtype: datetime
+        """
         item = self._get_subfolder_file_item(item)
         return await self._store.async_handler._async_get_accessed_time(item)
 
     # Pass through any get_created_time methods
 
     def _get_created_time(self, item: FileItem) -> datetime:
-        """Return the handler's _size from this folder"""
+        """
+        Return the handler's _size from this folder
+
+        :param: item: The FileItem to retrieve time of creation for
+        :type: item: FileItem
+
+        :return: The time of creation for the given filename
+        :rtype: datetime
+        """
         item = self._get_subfolder_file_item(item)
         return self._store.sync_handler._get_created_time(item)
 
     async def _async_get_created_time(self, item: FileItem) -> datetime:
-        """Return the handler's _async_size from this folder"""
+        """
+        Return the handler's _async_size from this folder
+
+        :param: item: The FileItem to retrieve time of creation for
+        :type: item: FileItem
+
+        :return: The time of creation for the given filename
+        :rtype: datetime
+        """
         item = self._get_subfolder_file_item(item)
         return await self._store.async_handler._async_get_created_time(item)
 
     # Pass through any get_modified_time methods
 
     def _get_modified_time(self, item: FileItem) -> datetime:
-        """Return the handler's _get_modified_time from this folder"""
+        """
+        Return the handler's _get_modified_time from this folder
+
+        :param: item: The FileItem to retrieve time of last modification for
+        :type: item: FileItem
+
+        :return: The time of last modification for the given filename
+        :rtype: datetime
+        """
         item = self._get_subfolder_file_item(item)
         return self._store.sync_handler._get_modified_time(item)
 
     async def _async_get_modified_time(self, item: FileItem) -> datetime:
-        """Return the handler's _async_get_modified_time from this folder"""
+        """
+        Return the handler's _async_get_modified_time from this folder
+
+        :param: item: The FileItem to retrieve time of last modification for
+        :type: item: FileItem
+
+        :return: The time of last modification for the given filename
+        :rtype: datetime
+        """
         item = self._get_subfolder_file_item(item)
         return await self._store.async_handler._async_get_modified_time(item)
 
     # Pass through any delete methods
 
     def _delete(self, item: FileItem) -> None:
-        """Return the handler's _delete method from this folder"""
+        """
+        Return the handler's _delete method from this folder
+
+        :param: item: The FileItem to delete
+        :type: item: FileItem
+
+        :return: None
+        :rtype: None
+        """
         item = self._get_subfolder_file_item(item)
         return self._store.sync_handler._delete(item)
 
     async def _async_delete(self, item: FileItem) -> None:
-        """Return the handler's _async_delete method from this folder"""
+        """
+        Return the handler's _async_delete method from this folder
+
+        :param: item: The FileItem to delete
+        :type: item: FileItem
+
+        :return: None
+        :rtype: None
+        """
         item = self._get_subfolder_file_item(item)
         return await self._store.async_handler._async_delete(item)
 
     # Pass through any save methods
 
     def _save(self, item: FileItem) -> str:
-        """Return the handler's _save from this folder"""
+        """
+        Return the handler's _save from this folder
+
+        :param: item: The FileItem to be saved
+        :type: item: FileItem
+
+        :return: The name of the saved file
+        :rtype: str
+        """
         item = self._get_subfolder_file_item(item)
         return self._store.sync_handler._save(item)
 
     async def _async_save(self, item: FileItem) -> str:
-        """Return the handler's _async_save from this folder"""
+        """
+        Return the handler's _async_save from this folder
+
+        :param: item: The FileItem to be saved
+        :type: item: FileItem
+
+        :return: The name of the saved file
+        :rtype: str
+        """
         item = self._get_subfolder_file_item(item)
         return await self._store.async_handler._async_save(item)

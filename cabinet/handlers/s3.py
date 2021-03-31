@@ -4,7 +4,7 @@ from io import BytesIO
 from typing import Awaitable, Optional
 
 from cabinet import AsyncStorageHandlerBase, FileItem
-from cabinet.exceptions import cabinetConfigError
+from cabinet.exceptions import CabinetConfigError
 
 
 try:
@@ -152,7 +152,7 @@ class S3Handler(AsyncStorageHandlerBase):
     async def _validate(self) -> Optional[Awaitable]:
         """Perform any setup or validation."""
         if aioboto3 is None:
-            raise cabinetConfigError("aioboto3 library required but not installed.")
+            raise CabinetConfigError("aioboto3 library required but not installed.")
 
         # Call this in order to populate the options
         self.__conn_options
@@ -161,7 +161,7 @@ class S3Handler(AsyncStorageHandlerBase):
     async def test_credentials(self):
         """Perform a read, check, delete set of operations on a dummy file."""
         item = self.get_item(
-            filename=f"__delete_me__{uuid.uuid4()}.txt",
+            filename="__delete_me__{}.txt".format(uuid.uuid4()),
             data=BytesIO(b"Credential test run from the cabinet library."),
         )
         async with self.resource as s3:

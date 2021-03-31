@@ -1,12 +1,13 @@
 from asyncio import get_event_loop, iscoroutine, isfuture
 from typing import Awaitable, Dict, Optional, Union, cast
 
-from .exceptions import cabinetConfigError
+from .exceptions import CabinetConfigError
 from .handler_base import AsyncStorageHandlerBase, Folder, StorageHandlerBase
 
 
 class StorageContainer(Folder):
-    """A class for handling storage configuration and retrieval.
+    """
+    A class for handling storage configuration and retrieval.
 
     This is intended to be a singleton and contains global storage
     configurations that are lazily populated.
@@ -16,7 +17,7 @@ class StorageContainer(Folder):
         self,
         name: Optional[str] = None,
         parent: Optional["StorageContainer"] = None,
-    ):
+    ) -> None:
         # Init the folder superclass
         super().__init__(store=self, path=tuple())
 
@@ -29,34 +30,67 @@ class StorageContainer(Folder):
 
     @property
     def name(self) -> str:
-        """Provide a name for this container based on its lineage"""
+        """
+        Provide a name for this container based on its lineage.
+
+        :return: The name of the StorageContainer
+        :rtype: str
+        """
         parent = ""
         if self._parent is not None:
             parent = self._parent.name
         if self._name is None:
             return parent
-        return f"{parent}[{repr(self._name)}]"
+        return "{}[{}]".format(parent, repr(self._name))
 
     @property
     def finalized(self) -> bool:
+        """
+        Determine whether this StorageContainer has been finalized.
+
+        :return: whether this StorageContainer has been finalized or not
+        :rtype: bool
+        """
         return self._finalized
 
     @property
     def do_not_use(self) -> bool:
+        """
+        Whether or not to use the StorageContainer.
+
+        :return: Whether or not the StorageContainer is usable
+        :rtype: bool
+        """
         return self._do_not_use
 
     @property
     def sync_handler(self) -> StorageHandlerBase:
+        """
+        The synchronous FileHandler for the StorageContainer.
+
+        :return: The synchronous FileHandler
+        :rtype: StorageHandlerBase
+        """
         handler = self.handler
         if handler is None:
-            raise cabinetConfigError(f"No handler provided for store{self.name}")
+            raise CabinetConfigError(
+                "No handler provided for store{}".format(self.name)
+            )
         return cast(StorageHandlerBase, handler)
 
     @property
     def async_handler(self) -> AsyncStorageHandlerBase:
+        """
+        The asynchronous FileHandler for the StorageContainer.
+
+        :return: The asynchronous FileHandler
+        :rtype: AsyncStorageHandlerBase
+        """
         handler = self.handler
         if not isinstance(handler, AsyncStorageHandlerBase):
-            raise cabinetConfigError(f"No async handler provided for store{self.name}")
+            raise CabinetConfigError(
+                "No async handler provided for store{}".format(self.name)
+            )
 
         return cast(AsyncStorageHandlerBase, handler)
 
@@ -64,18 +98,38 @@ class StorageContainer(Folder):
     def handler(
         self,
     ) -> Union[StorageHandlerBase, AsyncStorageHandlerBase, None]:
+        """
+        The configured handler for this store.
+
+        :raises CabinetConfigError: If no handler was provided
+
+        :return: None if successful
+        :rtype: None
+        """
         if self._do_not_use:
             return None
         if self._handler is None:
-            raise cabinetConfigError(f"No handler provided for store{self.name}")
+            raise CabinetConfigError(
+                "No handler provided for store{}".format(self.name)
+            )
         return self._handler
 
     @handler.setter
     def handler(self, handler: Optional[StorageHandlerBase]) -> None:
-        """Set the handler for this store"""
+        """
+        Sets the handler for this store
+
+        :raises CabinetConfigError: If setting handler was unsuccessful
+
+        :param: handler: The FileHandler to add to the store
+        :type: handler: StorageHandlerBase
+
+        :return: None if successful
+        :rtype: None
+        """
         if self._finalized:
-            raise cabinetConfigError(
-                f"Setting store{self.name}.handler: store already finalized!"
+            raise CabinetConfigError(
+                "Setting store{}.handler: store already finalized!".format(self.name)
             )
         if handler is None:
             self._handler = None
@@ -83,9 +137,9 @@ class StorageContainer(Folder):
             return
 
         if not isinstance(handler, StorageHandlerBase):
-            raise cabinetConfigError(
-                f"Setting store{self.name}.handler: "
-                f"{handler!r} is not a StorageHandler"
+            raise CabinetConfigError(
+                "Setting store{}.handler: ".format(self.name)
+                + "'{}' is not a StorageHandler".format(handler)
             )
         self._do_not_use = False
         # Inject the handler name
@@ -93,7 +147,14 @@ class StorageContainer(Folder):
         self._handler = handler
 
     async def async_finalize_config(self) -> None:
-        """Validate the config and prevent any further config changes."""
+        """
+        Validate the config and prevent any further config changes.
+
+        :raises CabinetConfigError: If setting handler was unsuccessful
+
+        :return: None if successful
+        :rtype: None
+        """
         if self._finalized:
             return
 
@@ -101,7 +162,9 @@ class StorageContainer(Folder):
             return
 
         if self._handler is None:
-            raise cabinetConfigError(f"No handler provided for store{self.name}")
+            raise CabinetConfigError(
+                "No handler provided for store{}".format(self.name)
+            )
 
         result = self._handler.validate()
         if iscoroutine(result) or isfuture(result):
@@ -115,18 +178,25 @@ class StorageContainer(Folder):
     def finalize_config(self) -> None:
         event_loop = get_event_loop()
         if event_loop.is_running():
-            raise cabinetConfigError(
+            raise CabinetConfigError(
                 "Async event loop is already running. "
                 "Must await store.async_finalize_config() instead."
             )
         event_loop.run_until_complete(self.async_finalize_config())
 
     def __getitem__(self, key: str) -> "StorageContainer":
-        """Get or create a storage container as a lookup.
+        """
+        Get or create a storage container as a lookup.
         The provided container will be lazily configured.
+
+        :param: key: The storage to create or get
+        :type: key: str
+
+        :return: The created or retrieved StorageContainer
+        :rtype: StorageContainer
         """
         if self._finalized and key not in self._children:
-            raise cabinetConfigError(
-                f"Getting store{self.name}[{key!r}]: store already finalized!"
+            raise CabinetConfigError(
+                "Getting store{}['{}']: store already finalized!".format(self.name, key)
             )
         return self._children.setdefault(key, StorageContainer(name=key, parent=self))
