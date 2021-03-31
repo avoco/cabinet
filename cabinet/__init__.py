@@ -13,7 +13,7 @@ def _read() -> str:
 __version__ = _read()
 
 # Instantiate the store singleton
-store = StorageContainer()
+store: StorageContainer = StorageContainer()
 
 
 __all__ = [
@@ -27,5 +27,4 @@ __all__ = [
     "exceptions",
     "handlers",
     "filters",
-    "config_utils",
 ]
