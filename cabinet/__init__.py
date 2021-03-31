@@ -27,6 +27,5 @@ __all__ = [
     "exceptions",
     "handlers",
     "filters",
-    "pyramid_config",
     "config_utils",
 ]

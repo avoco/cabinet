@@ -52,7 +52,6 @@ aioboto3 = "^8.3.0"
 aiofiles = "^0.6.0"
 pre-commit = "^2.11.1"
 pytest-emoji = "^0.2.0"
-pyramid = "^2.0"
 pytest-cov = "^2.11.1"
 Sphinx = "^3.5.3"
 
