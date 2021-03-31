@@ -6,6 +6,10 @@ from . import utils
 
 
 class SyncReader:
+    """
+    Synchronous file reader
+    """
+
     def __init__(self, item: "FileItem"):
         self.data = item.data
         self.filename = item.filename
@@ -27,6 +31,10 @@ class SyncReader:
 
 
 class AsyncReader:
+    """
+    Asynchronous file reader
+    """
+
     def __init__(self, item: "FileItem"):
         self.data = item.data
         self.filename = item.filename
@@ -48,12 +56,22 @@ class AsyncReader:
 
 
 class FileItem(NamedTuple):
+    """
+    Base file object used by cabinet
+    """
+
     filename: str
     path: Tuple[str, ...] = tuple()
     data: Optional[BinaryIO] = None
     media_type: Optional[str] = None  # Formerly known as MIME-type
 
     def copy(self, **kwargs) -> "FileItem":
+        """
+        Creates a copy of a given FileItem.
+
+        :returns: The copied FileItem
+        :rtype: FileItem
+        """
         filename = kwargs.get("filename", self.filename)
         path = kwargs.get("path", self.path)
         data = kwargs.get("data", self.data)
@@ -63,26 +81,48 @@ class FileItem(NamedTuple):
 
     def __repr__(self) -> str:
         has_data = "no data" if self.data is None else "with data"
-        return (
-            f"<FileItem filename:{self.filename!r} " f"path:{self.path!r} {has_data}>"
+        return "<FileItem filename:{} ".format(self.filename) + "path:{} {}>".format(
+            self.path, has_data
         )
 
     @property
     def has_data(self) -> bool:
+        """
+        Property to check whether or not the FileItem has data or not.
+
+        :return: Whether or not the FileItem has data
+        :rtype: bool
+        """
         return self.data is not None
 
     @property
     def url_path(self) -> str:
-        """A relative URL path string for this path/filename"""
+        """
+        A relative URL path string for this path/filename.
+
+        :return: The relative url path for the FileItem
+        :rtype: bool
+        """
         return "/".join(self.path + (self.filename,))
 
     @property
     def fs_path(self) -> str:
-        """A relative file system path string for this path/filename"""
+        """
+        A relative file system path string for this path/filename.
+
+        :return: The relative file system path for the FileItem
+        :rtype: bool
+        """
         return os.path.join(*self.path, self.filename)
 
     @property
     def content_type(self) -> Optional[str]:
+        """
+        The inferred content type of the FileItem.
+
+        :return: The content type
+        :rtype: str
+        """
         if self.media_type is not None:
             return self.media_type
         return mimetypes.guess_type(self.filename)[0]

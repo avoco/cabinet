@@ -5,7 +5,7 @@ from tempfile import TemporaryDirectory
 import pytest
 
 from cabinet import StorageContainer
-from cabinet.exceptions import cabinetConfigError
+from cabinet.exceptions import CabinetConfigError
 from cabinet.handlers import AsyncLocalFileHandler, LocalFileHandler
 
 
@@ -49,7 +49,7 @@ def test_error_when_no_directory(directory):
     directory = os.path.join(directory, "folder", "subfolder")
     handler = LocalFileHandler(base_path=directory)
 
-    with pytest.raises(cabinetConfigError) as err:
+    with pytest.raises(CabinetConfigError) as err:
         handler.validate()
 
     assert directory.rstrip("/").rstrip("\\") in str(err.value)
@@ -168,7 +168,7 @@ def test_async_error_when_no_directory(directory):
     directory = os.path.join(directory, "folder", "subfolder")
     handler = AsyncLocalFileHandler(base_path=directory)
 
-    with pytest.raises(cabinetConfigError) as err:
+    with pytest.raises(CabinetConfigError) as err:
         handler.validate()
 
     assert directory.rstrip("/").rstrip("\\") in str(err.value)

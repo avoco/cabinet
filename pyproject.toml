@@ -54,6 +54,7 @@ pre-commit = "^2.11.1"
 pytest-emoji = "^0.2.0"
 pyramid = "^2.0"
 pytest-cov = "^2.11.1"
+Sphinx = "^3.5.3"
 
 [tool.poetry.extras]
 aiofile = ["aiofiles"]

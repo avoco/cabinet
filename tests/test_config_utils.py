@@ -1,7 +1,7 @@
 import pytest
 
 from cabinet import StorageContainer, config_utils
-from cabinet.exceptions import cabinetConfigError
+from cabinet.exceptions import CabinetConfigError
 
 
 @pytest.fixture
@@ -106,7 +106,7 @@ def test_missing_required_parameter(store):
         "store.handler.filters[0]": "ValidateExtension",
         # 'store.handler.filters[0].extensions': "['jpg', 'png']",
     }
-    with pytest.raises(cabinetConfigError) as err:
+    with pytest.raises(CabinetConfigError) as err:
         config_utils.setup_from_settings(settings, store)
 
     assert "store.handler.filters[0]" in str(err.value)
@@ -134,7 +134,7 @@ def test_suggest_filters(store):
         "store.handler.filter[0]": "ValidateExtension",
         "store.handler.filter[0].extensions": "['jpg', 'png']",
     }
-    with pytest.raises(cabinetConfigError) as err:
+    with pytest.raises(CabinetConfigError) as err:
         config_utils.setup_from_settings(settings, store)
 
     assert 'invalid setting "store.handler.filter"' in str(err.value)
