@@ -9,11 +9,9 @@ def random_string_generator(filename: str) -> str:
     """
     Returns a unique identifier using uuid4
 
-    :param: filename: The original filename of the file
-    :type: filename: str
+    :param filename: the original filename of the file
 
-    :return: A unique identifier
-    :rtype: str
+    :return: a unique identifier
     """
     return str(uuid4())
 

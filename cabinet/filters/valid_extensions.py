@@ -20,11 +20,9 @@ class ValidateExtension(FilterBase):
         """
         Determine if the provided file extension is allowed.
 
-        :param: ext: The extension to check
-        :type: ext: str
+        :param ext: the extension to check
 
-        :return: Whether or not the extension is allowed
-        :rtype: bool
+        :return: whether or not the extension is allowed
         """
         if not self.extensions:
             return True
@@ -35,11 +33,9 @@ class ValidateExtension(FilterBase):
         Indicate if the provided filename is allowed.
         Judgement is based on its extension.
 
-        :param: filename: The filename to check
-        :type: filename: str
+        :param filename: the filename to check
 
-        :return: Whether or not the filename is allowed
-        :rtype: bool
+        :return: whether or not the filename is allowed
         """
         ext = os.path.splitext(filename)[1].strip(os.path.extsep)
         return self.extension_allowed(ext)

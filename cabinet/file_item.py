@@ -69,8 +69,7 @@ class FileItem(NamedTuple):
         """
         Creates a copy of a given FileItem.
 
-        :returns: The copied FileItem
-        :rtype: FileItem
+        :return: the copied FileItem
         """
         filename = kwargs.get("filename", self.filename)
         path = kwargs.get("path", self.path)
@@ -90,8 +89,7 @@ class FileItem(NamedTuple):
         """
         Property to check whether or not the FileItem has data or not.
 
-        :return: Whether or not the FileItem has data
-        :rtype: bool
+        :return: whether or not the FileItem has data
         """
         return self.data is not None
 
@@ -100,8 +98,7 @@ class FileItem(NamedTuple):
         """
         A relative URL path string for this path/filename.
 
-        :return: The relative url path for the FileItem
-        :rtype: bool
+        :return: the relative url path for the FileItem
         """
         return "/".join(self.path + (self.filename,))
 
@@ -110,8 +107,7 @@ class FileItem(NamedTuple):
         """
         A relative file system path string for this path/filename.
 
-        :return: The relative file system path for the FileItem
-        :rtype: bool
+        :return: the relative file system path for the FileItem
         """
         return os.path.join(*self.path, self.filename)
 
@@ -120,8 +116,7 @@ class FileItem(NamedTuple):
         """
         The inferred content type of the FileItem.
 
-        :return: The content type
-        :rtype: str
+        :return: the content type
         """
         if self.media_type is not None:
             return self.media_type

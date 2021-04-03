@@ -31,11 +31,9 @@ class FilterBase(ABC):
         """
         Apply the filter synchronously
 
-        :param: item: The item to apply filter to.
-        :type: item: FileItem
+        :param item: the item to apply filter to.
 
         :return: FileItem that filter has been applied to or an awaitable
-        :rtype: FileItem
         """
         return utils.any_to_sync(self._apply)(item)
 
@@ -43,11 +41,9 @@ class FilterBase(ABC):
         """
         Apply the filter asynchronously
 
-        :param: item: The item to apply filter to.
-        :type: item: FileItem
+        :param item: the item to apply filter to.
 
         :return: FileItem that filter has been applied to or an awaitable
-        :rtype: FileItem
         """
         if not self.async_ok:
             raise CabinetConfigError(
@@ -64,11 +60,9 @@ class FilterBase(ABC):
         """
         Applies the filter.
 
-        :param: item: The item to apply filter to.
-        :type: item: FileItem
+        :param item: the item to apply filter to.
 
         :return: FileItem that filter has been applied to or an awaitable
-        :rtype: Union[Awaitable[FileItem], FileItem]
         """
         return item
 
