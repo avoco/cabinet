@@ -25,11 +25,16 @@ jobs:
       - name: build-docs
         run: cd docs && poetry run python make_docs.py --output-file=pages
 
-      - name: push
+      - name: commit
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git add .
           git commit -m "Auto updating pages.json"
-          git push origin HEAD:main
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
