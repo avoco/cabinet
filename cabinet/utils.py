@@ -17,14 +17,11 @@ def sync_to_async(fn: SyncCallable, thread_sensitive=True) -> AsyncCallable:
     """
     Coverts a synchronous function into an asynchronous one.
 
-    :param: fn: The function to turn asynchronous
-    :type: fn: SyncCallable
+    :param fn: the function to turn asynchronous
 
-    :param: thread_sensitive: Whether or not the function is thread sensitive
-    :type: thread_sensitive: bool
+    :param thread_sensitive: whether or not the function is thread sensitive
 
-    :return: The asynchronous function
-    :rtype: AsyncCallable
+    :return: the asynchronous function
     """
     return cast(
         AsyncCallable,
@@ -36,11 +33,9 @@ def async_to_sync(fn: AsyncCallable) -> SyncCallable:
     """
     Coverts a asynchronous function into a synchronous one.
 
-    :param: fn: The function to turn synchronous
-    :type: fn: AsyncCallable
+    :param fn: the function to turn synchronous
 
-    :return: The asynchronous function
-    :rtype: AsyncCallable
+    :return: the asynchronous function
     """
     return cast(SyncCallable, sync.async_to_sync(fn))
 
@@ -49,11 +44,11 @@ def any_to_async(fn: MaybeAsyncCallable, thread_sensitive=True) -> AsyncCallable
     """
     Coverts any function into an asynchronous one.
 
-    :param: fn: The function to turn asynchronous
-    :type: fn: MaybeAsyncCallable
+    :param fn: the function to turn asynchronous
 
-    :return: The asynchronous function
-    :rtype: AsyncCallable
+    :param thread_sensitive: whether or not the function is thread sensitive
+
+    :return: the asynchronous function
     """
     if iscoroutinefunction(fn):
         return fn
@@ -64,11 +59,9 @@ def any_to_sync(fn: MaybeAsyncCallable) -> SyncCallable:
     """
     Coverts any function into a synchronous one.
 
-    :param: fn: The function to turn synchronous
-    :type: fn: MaybeAsyncCallable
+    :param fn: the function to turn synchronous
 
-    :return: The synchronous function
-    :rtype: SyncCallable
+    :return: the synchronous function
     """
     if iscoroutinefunction(fn):
         return async_to_sync(fn)

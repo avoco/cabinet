@@ -58,7 +58,9 @@ else:
 
 
 class S3Handler(AsyncStorageHandlerBase):
-    """Class for storing files in an S3 service"""
+    """
+    Class for storing files in an S3 service
+    """
 
     def __init__(
         self,
@@ -150,7 +152,9 @@ class S3Handler(AsyncStorageHandlerBase):
         return self.__memoized_conn_options
 
     async def _validate(self) -> Optional[Awaitable]:
-        """Perform any setup or validation."""
+        """
+        Perform any setup or validation.
+        """
         if aioboto3 is None:
             raise CabinetConfigError("aioboto3 library required but not installed.")
 
@@ -159,7 +163,9 @@ class S3Handler(AsyncStorageHandlerBase):
         return await self.test_credentials()
 
     async def test_credentials(self):
-        """Perform a read, check, delete set of operations on a dummy file."""
+        """
+        Perform a read, check, delete set of operations on a dummy file.
+        """
         item = self.get_item(
             filename="__delete_me__{}.txt".format(uuid.uuid4()),
             data=BytesIO(b"Credential test run from the cabinet library."),
@@ -172,7 +178,8 @@ class S3Handler(AsyncStorageHandlerBase):
 
     @property
     def resource(self) -> "AioBotoS3ResourceContext":
-        """Provide a context manager for accessing the S3 resources.
+        """
+        Provide a context manager for accessing the S3 resources.
 
         async with handler.resource as s3:
             pass
@@ -188,7 +195,9 @@ class S3Handler(AsyncStorageHandlerBase):
         return await resource.Bucket(self.bucket_name)  # type: ignore
 
     async def _async_exists(self, item: FileItem, s3=None) -> bool:
-        """Indicate if the given file exists within the given folder."""
+        """
+        Indicate if the given file exists within the given folder.
+        """
         if s3 is None:
             # If not called with the s3 context, do it again.
             async with self.resource as s3:
@@ -237,7 +246,8 @@ class S3Handler(AsyncStorageHandlerBase):
         return head["LastModified"]
 
     async def _async_save(self, item: FileItem, s3=None) -> str:
-        """Save the provided file to the given filename in the storage
+        """
+        Save the provided file to the given filename in the storage
         container. Returns the name of the file saved.
         """
         extra = {"ACL": self.acl, "ContentType": item.content_type}
@@ -259,7 +269,8 @@ class S3Handler(AsyncStorageHandlerBase):
         return item.filename
 
     async def _async_delete(self, item: FileItem, s3=None) -> None:
-        """Delete the given item from the storage container, whether or not
+        """
+        Delete the given item from the storage container, whether or not
         it exists.
         """
         if s3 is None:

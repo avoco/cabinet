@@ -33,8 +33,7 @@ class StorageContainer(Folder):
         """
         Provide a name for this container based on its lineage.
 
-        :return: The name of the StorageContainer
-        :rtype: str
+        :return: the name of the StorageContainer
         """
         parent = ""
         if self._parent is not None:
@@ -49,7 +48,6 @@ class StorageContainer(Folder):
         Determine whether this StorageContainer has been finalized.
 
         :return: whether this StorageContainer has been finalized or not
-        :rtype: bool
         """
         return self._finalized
 
@@ -58,8 +56,7 @@ class StorageContainer(Folder):
         """
         Whether or not to use the StorageContainer.
 
-        :return: Whether or not the StorageContainer is usable
-        :rtype: bool
+        :return: whether or not the StorageContainer is usable
         """
         return self._do_not_use
 
@@ -68,8 +65,7 @@ class StorageContainer(Folder):
         """
         The synchronous FileHandler for the StorageContainer.
 
-        :return: The synchronous FileHandler
-        :rtype: StorageHandlerBase
+        :return: the synchronous FileHandler
         """
         handler = self.handler
         if handler is None:
@@ -83,8 +79,7 @@ class StorageContainer(Folder):
         """
         The asynchronous FileHandler for the StorageContainer.
 
-        :return: The asynchronous FileHandler
-        :rtype: AsyncStorageHandlerBase
+        :return: the asynchronous FileHandler
         """
         handler = self.handler
         if not isinstance(handler, AsyncStorageHandlerBase):
@@ -102,9 +97,6 @@ class StorageContainer(Folder):
         The configured handler for this store.
 
         :raises CabinetConfigError: If no handler was provided
-
-        :return: None if successful
-        :rtype: None
         """
         if self._do_not_use:
             return None
@@ -121,11 +113,7 @@ class StorageContainer(Folder):
 
         :raises CabinetConfigError: If setting handler was unsuccessful
 
-        :param: handler: The FileHandler to add to the store
-        :type: handler: StorageHandlerBase
-
-        :return: None if successful
-        :rtype: None
+        :param handler: the FileHandler to add to the store
         """
         if self._finalized:
             raise CabinetConfigError(
@@ -151,9 +139,6 @@ class StorageContainer(Folder):
         Validate the config and prevent any further config changes.
 
         :raises CabinetConfigError: If setting handler was unsuccessful
-
-        :return: None if successful
-        :rtype: None
         """
         if self._finalized:
             return
@@ -189,11 +174,9 @@ class StorageContainer(Folder):
         Get or create a storage container as a lookup.
         The provided container will be lazily configured.
 
-        :param: key: The storage to create or get
-        :type: key: str
+        :param key: the storage to create or get
 
-        :return: The created or retrieved StorageContainer
-        :rtype: StorageContainer
+        :return: the created or retrieved StorageContainer
         """
         if self._finalized and key not in self._children:
             raise CabinetConfigError(

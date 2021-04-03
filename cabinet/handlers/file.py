@@ -33,11 +33,9 @@ class LocalFileHandler(StorageHandlerBase):
         """
         Returns the local path to the file.
 
-        :param: item: The FileItem to retrieve local_path for
-        :type: item: FileItem
+        :param item: the FileItem to retrieve local_path for
 
         :return: the local path to the file
-        :rtype: bool
         """
         return os.path.join(self.base_path, item.fs_path)
 
@@ -45,11 +43,7 @@ class LocalFileHandler(StorageHandlerBase):
         """
         Ensures the provided path exists.
 
-        :param: item: An optional FileItem to ensure path to exists
-        :type: item: FileItem
-
-        :return: None
-        :rtype: None
+        :param item: an optional FileItem to ensure path to exists
         """
         if not item:
             item = self.get_item("")
@@ -122,11 +116,9 @@ class LocalFileHandler(StorageHandlerBase):
         """
         Ensures a unique name for this file in the folder
 
-        :param: item: The FileItem to ensure unique name for
-        :type: item: FileItem
+        :param item: the FileItem to ensure unique name for
 
         :return: FileItem with unique name
-        :rtype: FileItem
         """
         if not self._exists(item):
             return item
@@ -148,11 +140,9 @@ def os_wrap(fn: utils.SyncCallable) -> utils.AsyncCallable:
     Use the wrap function from aiofiles to wrap the additional required
     os methods
 
-    :param: fn: The function to wrap aiofiles around
-    :type: fn: utils.SyncCallable
+    :param fn: the function to wrap aiofiles around
 
-    :return: The asynchronous function
-    :rtype: utils.AsyncCallable
+    :return: the asynchronous function
     """
     return aiofiles.os.wrap(fn)  # type: ignore
 
@@ -170,11 +160,7 @@ class AsyncLocalFileHandler(LocalFileHandler, AsyncStorageHandlerBase):
         """
         Ensures the provided path exists.
 
-        :param: item: An optional FileItem to ensure path to exists
-        :type: item: FileItem
-
-        :return: None
-        :rtype: None
+        :param item: an optional FileItem to ensure path to exists
         """
         if not item:
             item = self.get_item("")
@@ -253,11 +239,9 @@ class AsyncLocalFileHandler(LocalFileHandler, AsyncStorageHandlerBase):
         """
         Ensures a unique name for this file in the folder
 
-        :param: item: The FileItem to ensure unique name for
-        :type: item: FileItem
+        :param item: the FileItem to ensure unique name for
 
         :return: FileItem with unique name
-        :rtype: FileItem
         """
         if not await self._async_exists(item):
             return item
