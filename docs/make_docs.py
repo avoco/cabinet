@@ -48,7 +48,13 @@ def create_json(source_dir: str, output_file: str) -> None:
                 data: Dict[str, str] = json.load(f)
             try:
                 if file == "index.fjson":  # Root file
-                    pages["index"] = {"body": data["body"]}
+                    pages["pages"].append(
+                        {
+                            "title": data["title"],
+                            "path": "docs" + "/",
+                            "body": data["body"],
+                        }
+                    )
                 else:
                     pages["pages"].append(
                         {
