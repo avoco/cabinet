@@ -32,4 +32,4 @@ jobs:
 
           git add .
           git commit -m "Auto updating pages.json"
-          git push
+          git push origin HEAD:main
