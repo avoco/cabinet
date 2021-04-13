@@ -43,7 +43,7 @@ Table of Contents
             * [ValidateExtension](#validateextension)
       * [Testing](#testing)
 
-<!-- Added by: runner, at: Sat Jan 23 00:29:29 UTC 2021 -->
+<!-- Added by: runner, at: Mon Apr 12 00:14:18 UTC 2021 -->
 
 <!--te-->
 
@@ -96,7 +96,7 @@ Trying to use the store to save files prior to providing it a handler will resul
 ```python
 store.save_data(filename='file.txt', data=b'spamity spam')
 
-# cabinetConfigError: No handler provided for store
+# CabinetConfigError: No handler provided for store
 ```
 
 So it's time to give it a [handler](#handler).
@@ -137,7 +137,7 @@ When you do so, all handlers and filters will validate their configuration and i
 store.finalize_config()
 
 store.handler = DummyHandler()
-# cabinetConfigError: Setting store.handler: store already finalized!
+# CabinetConfigError: Setting store.handler: store already finalized!
 ```
 
 If using an ASGI server, you may need to instead use an [async startup task](https://www.starlette.io/events/) that contains:
@@ -248,7 +248,7 @@ Methods:
     * `save_file(filename: str, data: BinaryIO)` - Save the binary IO object to the given file.
     * `save_data(filename: str, data: bytes)` - Save the binary data to the given file.
     * `save_field(field: cgi.FieldStorage)` - Save the given field storage object.
-* Asynchronous methods: (all will throw a `cabinetConfigError` if the handler doesn't support async operations.)
+* Asynchronous methods: (all will throw a `FilestorageConfigError` if the handler doesn't support async operations.)
     * `async_exists(filename: str)` - Awaitable version
     * `async_size(filename: str)` - Awaitable version
     * `async_get_accessed_time(filename: str)` - Awaitable version
@@ -329,13 +329,13 @@ The FileItem can be used as a context manager, where it will modify the read/see
 All are importable via the `exceptions` sub-package. For example:
 
 ```python
-from cabinet.exceptions import cabinetError
+from cabinet.exceptions import CabinetError
 ```
 
- * cabinetError - Base class for any exceptions raised by this library.
+ * CabinetError - Base class for any exceptions raised by this library.
  * FileNotAllowed - The provided file is not allowed, either through a [Filter](#filter) or from a [Handler](#handler).
  * FileExtensionNotAllowed - The provided file with the given extension is not allowed, either through a [Filter](#filter) or from a [Handler](#handler).
- * cabinetConfigError - There was some problem with the configuration.
+ * CabinetConfigError - There was some problem with the configuration.
 
 ### Handlers
 
