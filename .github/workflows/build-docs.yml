@@ -25,9 +25,14 @@ jobs:
       - name: build-docs
         run: cd docs && poetry run python make_docs.py --output-file=pages
 
+      - name: set up cloud sdk
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.GCP_CREDENTIALS }}
+          export_default_credentials: true
+
       - id: upload-file
         uses: google-github-actions/upload-cloud-storage@main
         with:
-          credentials: ${{ secrets.GCP_CREDENTIALS }}
           path: docs/pages.json
           destination: avoco-dev/
