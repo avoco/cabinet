@@ -30,4 +30,4 @@ jobs:
         with:
           credentials: ${{ secrets.GCP_CREDENTIALS }}
           path: docs/pages.json
-          destination: avoco-dev/pages.json
+          destination: avoco-dev/
