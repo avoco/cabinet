@@ -1,4 +1,4 @@
-# cabinet
+# repono
 A Python library to make storing files intuitive.
 
 > :warning: Although there are extensive tests within this project for Python 3.6, 3.7, 3.8 and 3.9, it is a young project and there may be bugs. Be sure and test thoroughly prior to use in a production environment.
@@ -18,7 +18,7 @@ Table of Contents
 =================
 
 <!--ts-->
-   * [cabinet](#cabinet)
+   * [repono](#repono)
    * [Table of Contents](#table-of-contents)
       * [Introduction](#introduction)
          * [Installation](#installation)
@@ -51,16 +51,16 @@ Table of Contents
 
 ### Installation
 
-The library is available through the [Python Package Index](https://pypi.org/project/cabinet/) and can be installed with pip.
+The library is available through the [Python Package Index](https://pypi.org/project/repono/) and can be installed with pip.
 
 ```bash
-pip install cabinet
+pip install repono
 ```
 
 Different handlers have additional library requirements that can be optionally installed. For instance, the [async local file handler](#asynclocalfilehandler) requirements can be installed using:
 
 ```base
-pip install "cabinet[aio_file]"
+pip install "repono[aio_file]"
 ```
 
 The extras are:
@@ -72,7 +72,7 @@ The extras are:
 Interaction with the library is primarily accomplished through a global [`store`](#storagecontainer) object. Any Python file can access this global object by importing it.
 
 ```python
-from cabinet import store
+from repono import store
 store.finalized  # == False
 ```
 
@@ -96,7 +96,7 @@ Trying to use the store to save files prior to providing it a handler will resul
 ```python
 store.save_data(filename='file.txt', data=b'spamity spam')
 
-# CabinetConfigError: No handler provided for store
+# ReponoConfigError: No handler provided for store
 ```
 
 So it's time to give it a [handler](#handler).
@@ -137,7 +137,7 @@ When you do so, all handlers and filters will validate their configuration and i
 store.finalize_config()
 
 store.handler = DummyHandler()
-# CabinetConfigError: Setting store.handler: store already finalized!
+# ReponoConfigError: Setting store.handler: store already finalized!
 ```
 
 If using an ASGI server, you may need to instead use an [async startup task](https://www.starlette.io/events/) that contains:
@@ -187,7 +187,7 @@ Filters allow mutating a file to be stored to a Handler. They are called in the 
 For instance, it's often best not to store filenames provided by random Internet uploads. Although this library does scrub the filename, it's not as fool-proof as ignoring the provided filename and using a random string with a consistent length. The [RandomizeFilename](#randomizefilename) filter does that.
 
 ```python
-from cabinet.filters import RandomizeFilename
+from repono.filters import RandomizeFilename
 store.handler = DummyHandler(filters=[RandomizeFilename()])
 
 store.save_data(filename='ignored name.txt', data=b'contents')
@@ -207,12 +207,12 @@ Methods:
  * `handler` - Gets the configured handler or raises an exception of no handler has been provided. Set this property to set the handler.
  * `sync_handler` - Gets the configured handler as a sync-only handler. Raises an exception if no `handler` has been set.
  * `async_handler` - Gets the configured handler as an async-only handler. Raises an exception if no `handler` has been set or if the configured handler can't be used asynchronously.
- * `finalize_config()` - Walk through all configured objects and check to ensure they have a valid configuration. Lock the `StorageContainer` to prevent any further configuration changes. Will raise a `cabinetConfigError` if there's a configuration problem.
+ * `finalize_config()` - Walk through all configured objects and check to ensure they have a valid configuration. Lock the `StorageContainer` to prevent any further configuration changes. Will raise a `reponoConfigError` if there's a configuration problem.
  * `async_finalize_config()` - awaitable version of the above call. Necessary for ASGI servers.
  * `finalized` - `True` if the config has been finalized, `False` otherwise.
  * `do_not_use` - `True` if the `handler` has been set to `None`, `False` otherwise.
  * `name` - String name of how this configuration is accessed. `store['a'].name == "['a']"`.
- * `[*]` - Get a sub-configuration object. Raises a `cabinetConfigError` if the configuration is finalized and this configuration's `handler` hasn't been set.
+ * `[*]` - Get a sub-configuration object. Raises a `reponoConfigError` if the configuration is finalized and this configuration's `handler` hasn't been set.
  * `/ 'name'` - Obtain a `Folder` object with the same save/exist/delete methods as this object which write to the named sub-folder.
 
 Once the handler is set, the store object can be used as a `StorageHandler` object.
@@ -222,7 +222,7 @@ Once the handler is set, the store object can be used as a `StorageHandler` obje
 
 All handlers inherit from `StorageHandlerBase`.
 
-The async version of the Handler can be used for either synchronous or asynchronous operations. The `StorageHandlerBase` by itself can only be used for synchronous operations and any `async_*` method calls will throw an error. To make a new custom handler, start with the [handler template](../master/cabinet/handlers/_template.py).
+The async version of the Handler can be used for either synchronous or asynchronous operations. The `StorageHandlerBase` by itself can only be used for synchronous operations and any `async_*` method calls will throw an error. To make a new custom handler, start with the [handler template](../master/repono/handlers/_template.py).
 
 > :warning: __Ensure your forms include the attribute enctype=”multipart/form-data”__ or your uploaded files will be empty. [Short example](https://html.com/attributes/form-enctype/) and [more detail](https://developer.mozilla.org/en-US/docs/Web/API/FormData/Using_FormData_Objects#sending_files_using_a_formdata_object).
 
@@ -281,7 +281,7 @@ Abstract Methods to be overridden when sub-classing:
 
 ### Filter
 
-The `FilterBase` is used as a base class for any Filters. These are not intended to be used directly, but to be passed as an optional list to a Handler through the `filters` parameter. To make a new custom filter, start with the [filter template](../master/cabinet/filters/_template.py).
+The `FilterBase` is used as a base class for any Filters. These are not intended to be used directly, but to be passed as an optional list to a Handler through the `filters` parameter. To make a new custom filter, start with the [filter template](../master/repono/filters/_template.py).
 
 Properties:
 
@@ -290,7 +290,7 @@ Properties:
 Methods:
 
  * `call(item: FileItem)` - Returns the filtered [FileItem](#fileitem).
- * `async_call(item: FileItem)` - Awaitable version of `call`. If the filter can't be used asynchronously, will raise a `cabinetConfigError`.
+ * `async_call(item: FileItem)` - Awaitable version of `call`. If the filter can't be used asynchronously, will raise a `reponoConfigError`.
  * `validate()` - Checks to ensure the Filter is configured correctly. Might return an Awaitable.
 
 Abstract Methods to be overridden when sub-classing:
@@ -329,20 +329,20 @@ The FileItem can be used as a context manager, where it will modify the read/see
 All are importable via the `exceptions` sub-package. For example:
 
 ```python
-from cabinet.exceptions import CabinetError
+from repono.exceptions import ReponoError
 ```
 
- * CabinetError - Base class for any exceptions raised by this library.
+ * ReponoError - Base class for any exceptions raised by this library.
  * FileNotAllowed - The provided file is not allowed, either through a [Filter](#filter) or from a [Handler](#handler).
  * FileExtensionNotAllowed - The provided file with the given extension is not allowed, either through a [Filter](#filter) or from a [Handler](#handler).
- * CabinetConfigError - There was some problem with the configuration.
+ * ReponoConfigError - There was some problem with the configuration.
 
 ### Handlers
 
 All handlers are subclasses of the [StorageHandler](#storagehandler) class. These can be imported via the `handlers` sub-package. For example:
 
 ```python
-from cabinet.handlers import LocalFileHandler
+from repono.handlers import LocalFileHandler
 
 store.handler = LocalFileHandler(base_path='/home/www/uploads`)
 ```
@@ -363,7 +363,7 @@ Store files on the local file system using asynchronous methods.
 
 Async OK.
 
-> :warning: __Requires the `aiofiles` library__, which will be installed with `pip install cabinet['aio_file']`
+> :warning: __Requires the `aiofiles` library__, which will be installed with `pip install repono['aio_file']`
 
 Parameters:
  * `base_path` - Where to store the files on the local filesystem
@@ -376,7 +376,7 @@ Store files to an S3 bucket. This handler works for synchronous and asynchronous
 
 Async OK.
 
-> :warning: __Requires the `aioboto3` library__, which will be installed with `pip install cabinet['s3']`
+> :warning: __Requires the `aioboto3` library__, which will be installed with `pip install repono['s3']`
 
 > :warning: __Requires appropriate AWS permissions to the S3 bucket.__
 
@@ -438,7 +438,7 @@ Identical to the [DummyHandler](#dummyhandler), but can be used asynchronously.
 All are importable via the `filters` sub-package. For example:
 
 ```python
-from cabinet.filter import RandomizeFilename
+from repono.filter import RandomizeFilename
 
 store.handler = DummyHandler(filters=[RandomizeFilename()])
 ```
@@ -466,8 +466,8 @@ Parameters:
 The [DummyHandler](#dummyhandler) or [AsyncDummyHandler](#asyncdummyhandler) are great tools for testing your application. To keep your tests isolated, you can create a new [store](#storagecontainer) object and configure it for each test as needed.
 
 ```python
-from cabinet import StorageContainer
-from cabinet.handlers import AsyncDummyHandler
+from repono import StorageContainer
+from repono.handlers import AsyncDummyHandler
 
 def test_store():
     store = StorageContainer()
@@ -485,8 +485,8 @@ Within `tests/conftest.py`:
 ```python
 import pytest
 
-from cabinet import StorageContainer
-from cabinet.handlers import AsyncDummyHandler
+from repono import StorageContainer
+from repono.handlers import AsyncDummyHandler
 
 @pytest.fixture
 def dummy_handler():

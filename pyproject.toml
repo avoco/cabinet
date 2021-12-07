@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "cabinet"
+name = "repono"
 version = "0.0.6"
 description = "Save uploaded files in configurable stores"
 authors = [
@@ -10,8 +10,8 @@ license = "MIT"
 
 readme = "README.md"
 
-homepage = ""
-repository = "https://github.com/avoco/cabinet"
+homepage = "repono.avoco.io" # Comming soon!
+repository = "https://github.com/avoco/repono"
 documentation = ""
 
 keywords = ["file-system", "async", "starlette", "fastapi"]
@@ -22,16 +22,16 @@ classifiers = [
     'Operating System :: OS Independent',
 ]
 packages = [
-    {include = "cabinet"},
-    {include = "cabinet/py.typed"},
-    {include = "cabinet/filters"},
-    {include = "cabinet/filters/py.typed"},
-    {include = "cabinet/handlers"},
-    {include = "cabinet/handlers/py.typed"},
+    {include = "repono"},
+    {include = "repono/py.typed"},
+    {include = "repono/filters"},
+    {include = "repono/filters/py.typed"},
+    {include = "repono/handlers"},
+    {include = "repono/handlers/py.typed"},
 ]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 
 asgiref = "^3.3.1"
 aioboto3 = {version = "^8.3.0", optional = true}
@@ -65,14 +65,14 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.isort]
-src_paths = ["cabinet", "tests"]
+src_paths = ["repono", "tests"]
 profile = "black"
 indent = 4
 combine_star = true
 combine_as_imports = true
 lines_after_imports = 2
 known_pytest = ["pytest"]
-known_first_party = ["cabinet"]
+known_first_party = ["repono"]
 sections = ["FUTURE", "STDLIB", "PYTEST", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 
 [tool.black]

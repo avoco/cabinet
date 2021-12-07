@@ -2,9 +2,9 @@ from io import BytesIO
 
 import pytest
 
-from cabinet import FileItem
-from cabinet.exceptions import FileExtensionNotAllowed
-from cabinet.filters import ValidateExtension
+from repono import FileItem
+from repono.exceptions import FileExtensionNotAllowed
+from repono.filters import ValidateExtension
 
 
 @pytest.fixture

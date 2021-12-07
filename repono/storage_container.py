@@ -1,7 +1,7 @@
 from asyncio import get_event_loop, iscoroutine, isfuture
 from typing import Awaitable, Dict, Optional, Union, cast
 
-from .exceptions import CabinetConfigError
+from .exceptions import ReponoConfigError
 from .handler_base import AsyncStorageHandlerBase, Folder, StorageHandlerBase
 
 
@@ -69,9 +69,7 @@ class StorageContainer(Folder):
         """
         handler = self.handler
         if handler is None:
-            raise CabinetConfigError(
-                "No handler provided for store{}".format(self.name)
-            )
+            raise ReponoConfigError("No handler provided for store{}".format(self.name))
         return cast(StorageHandlerBase, handler)
 
     @property
@@ -83,7 +81,7 @@ class StorageContainer(Folder):
         """
         handler = self.handler
         if not isinstance(handler, AsyncStorageHandlerBase):
-            raise CabinetConfigError(
+            raise ReponoConfigError(
                 "No async handler provided for store{}".format(self.name)
             )
 
@@ -96,14 +94,12 @@ class StorageContainer(Folder):
         """
         The configured handler for this store.
 
-        :raises CabinetConfigError: If no handler was provided
+        :raises ReponoConfigError: If no handler was provided
         """
         if self._do_not_use:
             return None
         if self._handler is None:
-            raise CabinetConfigError(
-                "No handler provided for store{}".format(self.name)
-            )
+            raise ReponoConfigError("No handler provided for store{}".format(self.name))
         return self._handler
 
     @handler.setter
@@ -111,12 +107,12 @@ class StorageContainer(Folder):
         """
         Sets the handler for this store
 
-        :raises CabinetConfigError: If setting handler was unsuccessful
+        :raises ReponoConfigError: If setting handler was unsuccessful
 
         :param handler: the FileHandler to add to the store
         """
         if self._finalized:
-            raise CabinetConfigError(
+            raise ReponoConfigError(
                 "Setting store{}.handler: store already finalized!".format(self.name)
             )
         if handler is None:
@@ -125,7 +121,7 @@ class StorageContainer(Folder):
             return
 
         if not isinstance(handler, StorageHandlerBase):
-            raise CabinetConfigError(
+            raise ReponoConfigError(
                 "Setting store{}.handler: ".format(self.name)
                 + "'{}' is not a StorageHandler".format(handler)
             )
@@ -138,7 +134,7 @@ class StorageContainer(Folder):
         """
         Validate the config and prevent any further config changes.
 
-        :raises CabinetConfigError: If setting handler was unsuccessful
+        :raises ReponoConfigError: If setting handler was unsuccessful
         """
         if self._finalized:
             return
@@ -147,9 +143,7 @@ class StorageContainer(Folder):
             return
 
         if self._handler is None:
-            raise CabinetConfigError(
-                "No handler provided for store{}".format(self.name)
-            )
+            raise ReponoConfigError("No handler provided for store{}".format(self.name))
 
         result = self._handler.validate()
         if iscoroutine(result) or isfuture(result):
@@ -163,7 +157,7 @@ class StorageContainer(Folder):
     def finalize_config(self) -> None:
         event_loop = get_event_loop()
         if event_loop.is_running():
-            raise CabinetConfigError(
+            raise ReponoConfigError(
                 "Async event loop is already running. "
                 "Must await store.async_finalize_config() instead."
             )
@@ -179,7 +173,7 @@ class StorageContainer(Folder):
         :return: the created or retrieved StorageContainer
         """
         if self._finalized and key not in self._children:
-            raise CabinetConfigError(
+            raise ReponoConfigError(
                 "Getting store{}['{}']: store already finalized!".format(self.name, key)
             )
         return self._children.setdefault(key, StorageContainer(name=key, parent=self))

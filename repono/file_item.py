@@ -57,7 +57,7 @@ class AsyncReader:
 
 class FileItem(NamedTuple):
     """
-    Base file object used by cabinet
+    Base file object used by repono
     """
 
     filename: str

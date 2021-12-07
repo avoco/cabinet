@@ -1,4 +1,4 @@
-class CabinetError(RuntimeError):
+class ReponoError(RuntimeError):
     """
     Base class for all errors in this library
     """
@@ -6,7 +6,7 @@ class CabinetError(RuntimeError):
     pass
 
 
-class FileNotAllowed(CabinetError):
+class FileNotAllowed(ReponoError):
     """
     The provided file is not allowed.
     """
@@ -14,7 +14,7 @@ class FileNotAllowed(CabinetError):
     pass
 
 
-class FileExtensionNotAllowed(CabinetError):
+class FileExtensionNotAllowed(ReponoError):
     """
     The provided file extension is not allowed.
     """
@@ -22,7 +22,7 @@ class FileExtensionNotAllowed(CabinetError):
     pass
 
 
-class CabinetConfigError(CabinetError):
+class ReponoConfigError(ReponoError):
     """
     Error in the configuration.
     """

@@ -13,7 +13,7 @@ repos:
     rev: v0.790
     hooks:
       - id: mypy
-        args: [cabinet]
+        args: [repono]
         pass_filenames: false # https://github.com/pre-commit/mirrors-mypy/issues/5
 
   - repo: https://github.com/pycqa/isort

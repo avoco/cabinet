@@ -3,7 +3,7 @@ from io import BytesIO
 
 import pytest
 
-from cabinet import FileItem
+from repono import FileItem
 
 
 @pytest.mark.parametrize(

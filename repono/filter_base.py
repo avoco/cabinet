@@ -3,7 +3,7 @@ from asyncio import iscoroutinefunction
 from typing import Awaitable, Optional, Union, cast
 
 from . import utils
-from .exceptions import CabinetConfigError
+from .exceptions import ReponoConfigError
 from .file_item import FileItem
 
 
@@ -46,7 +46,7 @@ class FilterBase(ABC):
         :return: FileItem that filter has been applied to or an awaitable
         """
         if not self.async_ok:
-            raise CabinetConfigError(
+            raise ReponoConfigError(
                 "The {} filter cannot be used "
                 "asynchronously".format(self.__class__.__name__)
             )

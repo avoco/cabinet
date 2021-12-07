@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = "cabinet"
+project = "repono"
 copyright = "2021, Ian Epperson, David Styers"
 author = "Ian Epperson, David Styers"
 
