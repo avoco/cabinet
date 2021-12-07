@@ -1,9 +1,9 @@
 API
 ===
 
-.. module:: cabinet
+.. module:: repono
 
-This part of the documentation covers all the interfaces of Cabinet.
+This part of the documentation covers all the interfaces of Repono.
 
 StorageContainer Object
 -----------------------

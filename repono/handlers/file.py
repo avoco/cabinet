@@ -11,8 +11,8 @@ except ImportError:
     # The validate method will ensure this isn't None prior to use
     aiofiles = None  # type: ignore
 
-from cabinet import AsyncStorageHandlerBase, FileItem, StorageHandlerBase, utils
-from cabinet.exceptions import CabinetConfigError
+from repono import AsyncStorageHandlerBase, FileItem, StorageHandlerBase, utils
+from repono.exceptions import ReponoConfigError
 
 
 class LocalFileHandler(StorageHandlerBase):
@@ -65,7 +65,7 @@ class LocalFileHandler(StorageHandlerBase):
             item = self.get_item("")
             if not self._exists(item):
                 local_path = self.local_path(item)
-                raise CabinetConfigError(
+                raise ReponoConfigError(
                     "Configured directory {} does not exist".format(local_path)
                 )
 
@@ -175,7 +175,7 @@ class AsyncLocalFileHandler(LocalFileHandler, AsyncStorageHandlerBase):
 
     def validate(self) -> None:
         if aiofiles is None:
-            raise CabinetConfigError(
+            raise ReponoConfigError(
                 "The aiofiles library is required for using "
                 "{}".format(self.__class__.__name__)
             )

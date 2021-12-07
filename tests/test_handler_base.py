@@ -6,9 +6,9 @@ import pytest
 
 from mock import Mock
 
-from cabinet import FileItem, FilterBase, StorageContainer
-from cabinet.exceptions import CabinetConfigError
-from cabinet.handlers import AsyncDummyHandler, DummyHandler
+from repono import FileItem, FilterBase, StorageContainer
+from repono.exceptions import ReponoConfigError
+from repono.handlers import AsyncDummyHandler, DummyHandler
 
 
 @pytest.fixture
@@ -73,7 +73,7 @@ async def test_validate_bad_async_filter():
     filter1.async_ok = False
     handler = AsyncDummyHandler(filters=[filter1])
 
-    with pytest.raises(CabinetConfigError) as err:
+    with pytest.raises(ReponoConfigError) as err:
         await handler.validate()
 
     assert "cannot be used" in str(err.value)
@@ -245,7 +245,7 @@ def test_filter_class_not_instance():
     solution.
     """
     handler = DummyHandler(filters=[MockFilter])
-    with pytest.raises(CabinetConfigError) as err:
+    with pytest.raises(ReponoConfigError) as err:
         handler.validate()
 
     assert str(err.value) == (

@@ -3,7 +3,7 @@ from io import BytesIO
 
 import pytest
 
-from cabinet.handlers import S3Handler
+from repono.handlers import S3Handler
 
 from . import s3_mock
 
@@ -13,7 +13,7 @@ def mock_s3_resource(mocker):
     resource = s3_mock.MockS3AsyncResource()
     contextualized = s3_mock.MockAsyncContext(resource)
     mocker.patch(
-        "cabinet.handlers.S3Handler.resource",
+        "repono.handlers.S3Handler.resource",
         new=contextualized,
     )
     return resource
@@ -24,7 +24,7 @@ def mock_s3_resource_failure(mocker):
     resource = s3_mock.MockS3AsyncResource(make_object_missing=True)
     contextualized = s3_mock.MockAsyncContext(resource)
     mocker.patch(
-        "cabinet.handlers.S3Handler.resource",
+        "repono.handlers.S3Handler.resource",
         new=contextualized,
     )
     return resource

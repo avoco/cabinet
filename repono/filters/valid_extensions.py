@@ -1,8 +1,8 @@
 import os
 from typing import List
 
-from cabinet import FileItem, FilterBase
-from cabinet.exceptions import FileExtensionNotAllowed
+from repono import FileItem, FilterBase
+from repono.exceptions import FileExtensionNotAllowed
 
 
 class ValidateExtension(FilterBase):

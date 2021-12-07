@@ -1,7 +1,7 @@
 import pytest
 
-from cabinet import AsyncFilterBase, FileItem, FilterBase
-from cabinet.handlers import AsyncDummyHandler, DummyHandler
+from repono import AsyncFilterBase, FileItem, FilterBase
+from repono.handlers import AsyncDummyHandler, DummyHandler
 
 
 class SimpleFilter(FilterBase):

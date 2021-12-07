@@ -16,7 +16,7 @@ from typing import (
 from urllib.parse import urljoin
 
 from . import utils
-from .exceptions import CabinetConfigError
+from .exceptions import ReponoConfigError
 from .file_item import FileItem
 from .filter_base import FilterBase
 
@@ -86,7 +86,7 @@ class StorageHandlerBase(ABC):
         Validate that the configuration is set up properly and the necessary
         libraries are available.
 
-        :raises: CabinetConfigError: Error in the configuration
+        :raises: ReponoConfigError: Error in the configuration
 
         :return: list of coroutines or None depending on if filter is asynchronous
         """
@@ -95,7 +95,7 @@ class StorageHandlerBase(ABC):
         for filter_ in self._filters:
             if inspect.isclass(filter_):
                 filter_name: str = filter_.__name__  # type: ignore
-                raise CabinetConfigError(
+                raise ReponoConfigError(
                     "Filter {} is a class, not an instance. ".format(filter_name)
                     + 'Did you mean to use "filters=[{}()]" instead?'.format(
                         filter_name
@@ -382,14 +382,14 @@ class AsyncStorageHandlerBase(StorageHandlerBase, ABC):
         Validate that the configuration is set up properly and the necessary
         libraries are available.
 
-        :raises: CabinetConfigError: Error in the configuration
+        :raises: ReponoConfigError: Error in the configuration
 
         :return: list of coroutines or None depending on if filter is asynchronous
         """
         # Verify that any provided filters are ok to use.
         for filter_ in self.filters:
             if not filter_.async_ok:
-                raise CabinetConfigError(
+                raise ReponoConfigError(
                     "Filter {} cannot be used in ".format(filter_)
                     + "asynchronous storage handler {}".format(self)
                 )

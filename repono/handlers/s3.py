@@ -3,8 +3,8 @@ from datetime import datetime
 from io import BytesIO
 from typing import Awaitable, Optional
 
-from cabinet import AsyncStorageHandlerBase, FileItem
-from cabinet.exceptions import CabinetConfigError
+from repono import AsyncStorageHandlerBase, FileItem
+from repono.exceptions import ReponoConfigError
 
 
 try:
@@ -156,7 +156,7 @@ class S3Handler(AsyncStorageHandlerBase):
         Perform any setup or validation.
         """
         if aioboto3 is None:
-            raise CabinetConfigError("aioboto3 library required but not installed.")
+            raise ReponoConfigError("aioboto3 library required but not installed.")
 
         # Call this in order to populate the options
         self.__conn_options
@@ -168,7 +168,7 @@ class S3Handler(AsyncStorageHandlerBase):
         """
         item = self.get_item(
             filename="__delete_me__{}.txt".format(uuid.uuid4()),
-            data=BytesIO(b"Credential test run from the cabinet library."),
+            data=BytesIO(b"Credential test run from the repono library."),
         )
         async with self.resource as s3:
             filename = await self._async_save(item, s3)

@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Dict, NamedTuple, Optional, Tuple
 
-from cabinet import AsyncStorageHandlerBase, FileItem, StorageHandlerBase
+from repono import AsyncStorageHandlerBase, FileItem, StorageHandlerBase
 
 
 class DummyFile(NamedTuple):
